@@ -1,0 +1,4 @@
+name,email,phone,address,city,state,country,postal_code,website,industry,company_size,description,status,trial_days
+Acme Corporation,contact@acme.com,+1-555-0123,123 Main St,New York,NY,United States,10001,https://acme.com,Technology,51-200,Leading technology company,active,14
+Tech Solutions Inc,info@techsolutions.com,+1-555-0456,456 Tech Ave,San Francisco,CA,United States,94105,https://techsolutions.com,Technology,11-50,Innovative tech solutions,active,30
+Healthcare Plus,contact@healthcareplus.com,+1-555-0789,789 Health Blvd,Boston,MA,United States,02101,https://healthcareplus.com,Healthcare,201-500,Healthcare services provider,active,14
