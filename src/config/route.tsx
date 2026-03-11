@@ -9,7 +9,6 @@ import OrganizationDetailPage from "@/domains/portal/organizations/pages/organiz
 import PlansPage from "@/domains/portal/plans/pages/plans.page";
 import SubscriptionManagementPage from "@/domains/portal/subscriptions/pages/subscription-management.page";
 import UserManagementPage from "@/domains/portal/users/pages/user-management.page";
-import PaymentGatewaysPage from "@/domains/portal/payment-gateways/pages/payment-gateways.page";
 import SupportTicketsPage from "@/domains/portal/support-tickets/pages/support-tickets.page";
 import { AnalyticsPage } from "@/domains/portal/analytics/pages/analytics.page";
 import NotificationsPage from "@/domains/portal/notifications/pages/notifications.page";
@@ -17,11 +16,14 @@ import RolesPermissionsPage from "@/domains/portal/roles-permissions/pages/roles
 import SettingsPage from "@/domains/portal/settings/pages/settings.page";
 import BillingPage from "@/domains/portal/billing/pages/billing.page";
 import HRTemplatesPage from "@/domains/portal/hr-templates/pages/hr-templates.page";
+import FeaturesPage from "@/domains/portal/features/pages/features.page";
+import ProfilePage from "@/domains/portal/profile/pages/profile.page";
+import AnnouncementsPage from "@/domains/portal/announcements/pages/announcements.page";
 
 export const routes = createBrowserRouter([
     {
         path: '/',
-        element: <Navigate to="/dashboard" replace />,
+        element: <Navigate to="/login" replace />,
     },
     {
         path: '/',
@@ -66,8 +68,8 @@ export const routes = createBrowserRouter([
                 element: <PlansPage />,
             },
             {
-                path: 'payment-gateways',
-                element: <PaymentGatewaysPage />,
+                path: 'features',
+                element: <FeaturesPage />,
             },
             {
                 path: 'ai-models',
@@ -100,6 +102,14 @@ export const routes = createBrowserRouter([
             {
                 path: 'hr-templates',
                 element: <HRTemplatesPage />,
+            },
+            {
+                path: 'profile',
+                element: <ProfilePage />,
+            },
+            {
+                path: 'announcements',
+                element: <AnnouncementsPage />,
             },
         ],
     }

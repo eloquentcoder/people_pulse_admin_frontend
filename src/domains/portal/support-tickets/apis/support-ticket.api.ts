@@ -22,7 +22,6 @@ export const supportTicketApi = createApi({
         headers.set('authorization', `Bearer ${token}`);
       }
       headers.set('accept', 'application/json');
-      headers.set('content-type', 'application/json');
       return headers;
     },
   }),
@@ -98,21 +97,31 @@ export const supportTicketApi = createApi({
     // Add reply to ticket
     addTicketReply: builder.mutation<ApiResponse<SupportTicketReply>, CreateTicketReplyData>({
       query: (data) => {
-        const formData = new FormData();
-        formData.append('ticket_id', data.ticket_id.toString());
-        formData.append('message', data.message);
-        formData.append('is_internal', (data.is_internal || false).toString());
-        
+        // If there are attachments, use FormData
         if (data.attachments && data.attachments.length > 0) {
+          const formData = new FormData();
+          formData.append('message', data.message);
+          formData.append('is_internal', data.is_internal ? '1' : '0');
+
           data.attachments.forEach((file) => {
             formData.append('attachments[]', file);
           });
+
+          return {
+            url: `/${data.ticket_id}/replies`,
+            method: 'POST',
+            body: formData,
+          };
         }
 
+        // Otherwise, send JSON
         return {
           url: `/${data.ticket_id}/replies`,
           method: 'POST',
-          body: formData,
+          body: {
+            message: data.message,
+            is_internal: data.is_internal || false,
+          },
         };
       },
       invalidatesTags: (_result, _error, { ticket_id }) => [

@@ -41,6 +41,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/common/components/ui
 import { HRTemplateFormModal } from '../components/hr-template-form-modal';
 import { HRTemplateDetailsModal } from '../components/hr-template-details-modal';
 import { CategoryFormModal } from '../components/category-form-modal';
+import { CategoryIcon } from '../components/category-icon';
 import type { HRTemplate, HRTemplateCategory, HRTemplateFilters } from '../models/hr-template.model';
 import { 
   useGetHRTemplatesQuery,
@@ -484,11 +485,11 @@ const HRTemplatesPage = () => {
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3">
                               {category.icon && (
-                                <div 
+                                <div
                                   className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                  style={{ backgroundColor: category.color || '#4469e5' + '20' }}
+                                  style={{ backgroundColor: (category.color || '#4469e5') + '20' }}
                                 >
-                                  <span className="text-lg">{category.icon}</span>
+                                  <CategoryIcon icon={category.icon} color={category.color} size={20} />
                                 </div>
                               )}
                               <div>

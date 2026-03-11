@@ -40,15 +40,16 @@ import {
     Area,
     Pie
 } from 'recharts';
-// import { 
-//     useGetOverviewQuery,
-//     useGetCompanyRegistrationsTrendQuery,
-//     useGetRevenueTrendQuery,
-//     useGetSubscriptionPlanDistributionQuery,
-//     useGetTopActiveOrganizationsQuery,
-//     useGetRecentActivityQuery
-// } from '../apis/dashboard.api';
-import type { DashboardOverview, ChartData, TopOrganization, RecentActivity } from '../models/dashboard.model';
+import {
+    useGetOverviewQuery,
+    useGetCompanyRegistrationsTrendQuery,
+    useGetRevenueTrendQuery,
+    useGetSubscriptionPlanDistributionQuery,
+    useGetTopActiveOrganizationsQuery,
+    useGetRecentActivityQuery
+} from '../apis/dashboard.api';
+import type { ChartData, TopOrganization, RecentActivity } from '../models/dashboard.model';
+import { Loader2 } from 'lucide-react';
 
 interface StatCard {
     title: string;
@@ -63,102 +64,41 @@ interface StatCard {
 
 
 export const DashboardPage = () => {
-    // API Queries - COMMENTED OUT
-    // const { data: overviewData, isLoading: overviewLoading } = useGetOverviewQuery();
-    // const { data: companyTrendData, isLoading: companyTrendLoading } = useGetCompanyRegistrationsTrendQuery();
-    // const { data: revenueDataResponse, isLoading: revenueLoading } = useGetRevenueTrendQuery();
-    // const { data: subscriptionDataResponse, isLoading: subscriptionLoading } = useGetSubscriptionPlanDistributionQuery();
-    // const { data: topOrgsData, isLoading: topOrgsLoading } = useGetTopActiveOrganizationsQuery();
-    // const { data: activityData, isLoading: activityLoading } = useGetRecentActivityQuery();
+    // API Queries
+    const { data: overviewResponse, isLoading: overviewLoading } = useGetOverviewQuery();
+    const { data: companyTrendResponse, isLoading: companyTrendLoading } = useGetCompanyRegistrationsTrendQuery();
+    const { data: revenueResponse, isLoading: revenueLoading } = useGetRevenueTrendQuery();
+    const { data: subscriptionResponse, isLoading: subscriptionLoading } = useGetSubscriptionPlanDistributionQuery();
+    const { data: topOrgsResponse, isLoading: topOrgsLoading } = useGetTopActiveOrganizationsQuery();
+    const { data: activityResponse, isLoading: activityLoading } = useGetRecentActivityQuery();
 
-    // Mock data
-    const mockOverview: DashboardOverview = {
-        company_metrics: {
-            total_companies: 245,
-            active_companies: 198,
-            inactive_companies: 35,
-            new_companies_this_month: 12,
-            trial_vs_paid_ratio: 68.5,
-        },
-        user_metrics: {
-            total_users: 5420,
-            active_users_this_week: 3240,
-            avg_session_duration: '45m 23s',
-            user_growth_rate: 12.5,
-        },
-        financial_metrics: {
-            total_revenue: 1250000,
-            mrr: 85000,
-            revenue_growth: 18.3,
-            failed_transactions: 23,
-        },
-        system_metrics: {
-            api_calls_today: 12450,
-            system_uptime: 99.8,
-            storage_used: '2.4 TB',
-            avg_response_time: '145ms',
-        },
-        security_metrics: {
-            login_attempts_today: 1240,
-            failed_logins: 45,
-            audit_logs: 890,
-            reported_issues: 12,
-        },
-        engagement_metrics: {
-            open_support_tickets: 34,
-            avg_response_time: '2h 15m',
-            customer_retention: 94.2,
-            customer_satisfaction: 4.6,
-        },
-    };
+    // Extract data from API responses
+    const overview = overviewResponse?.data;
+    const companyRegistrationsData: ChartData[] = companyTrendResponse?.data || [];
+    const revenueData: ChartData[] = revenueResponse?.data || [];
+    const subscriptionPlanData: ChartData[] = subscriptionResponse?.data || [];
+    const topOrganizations: TopOrganization[] = topOrgsResponse?.data || [];
+    const recentActivities: RecentActivity[] = activityResponse?.data || [];
 
-    const mockCompanyRegistrations: ChartData[] = [
-        { name: 'Jan', value: 45, companies: 45 },
-        { name: 'Feb', value: 52, companies: 52 },
-        { name: 'Mar', value: 48, companies: 48 },
-        { name: 'Apr', value: 61, companies: 61 },
-        { name: 'May', value: 55, companies: 55 },
-        { name: 'Jun', value: 67, companies: 67 },
-    ];
+    // Combined loading state for main content
+    const isMainLoading = overviewLoading;
 
-    const mockRevenueData: ChartData[] = [
-        { name: 'Jan', value: 72000, mrr: 72000 },
-        { name: 'Feb', value: 75000, mrr: 75000 },
-        { name: 'Mar', value: 78000, mrr: 78000 },
-        { name: 'Apr', value: 82000, mrr: 82000 },
-        { name: 'May', value: 85000, mrr: 85000 },
-        { name: 'Jun', value: 88000, mrr: 88000 },
-    ];
+    // Loading skeleton component
+    const LoadingSkeleton = () => (
+        <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4">
+                <Loader2 className="w-8 h-8 animate-spin text-[#4469e5]" />
+                <p className="text-gray-500 dark:text-gray-400">Loading dashboard data...</p>
+            </div>
+        </div>
+    );
 
-    const mockSubscriptionPlanData: ChartData[] = [
-        { name: 'Basic', value: 120, color: '#4469e5' },
-        { name: 'Professional', value: 85, color: '#ee9807' },
-        { name: 'Enterprise', value: 40, color: '#10b981' },
-    ];
-
-    const mockTopOrganizations: TopOrganization[] = [
-        { id: 1, name: 'Acme Corp', users: 250, plan: 'Enterprise', mrr: '$2,500', status: 'active', activity: 95 },
-        { id: 2, name: 'Tech Solutions', users: 180, plan: 'Professional', mrr: '$1,800', status: 'active', activity: 88 },
-        { id: 3, name: 'Global Industries', users: 320, plan: 'Enterprise', mrr: '$3,200', status: 'active', activity: 92 },
-        { id: 4, name: 'Startup Inc', users: 45, plan: 'Basic', mrr: '$450', status: 'trial', activity: 65 },
-        { id: 5, name: 'Mega Corp', users: 500, plan: 'Enterprise', mrr: '$5,000', status: 'active', activity: 98 },
-    ];
-
-    const mockRecentActivities: RecentActivity[] = [
-        { id: 1, action: 'New organization registered', org: 'Startup Inc', time: '2 minutes ago', type: 'success' },
-        { id: 2, action: 'Payment failed', org: 'Tech Solutions', time: '15 minutes ago', type: 'error' },
-        { id: 3, action: 'Subscription upgraded', org: 'Acme Corp', time: '1 hour ago', type: 'success' },
-        { id: 4, action: 'System maintenance scheduled', org: 'Platform', time: '2 hours ago', type: 'warning' },
-        { id: 5, action: 'New user onboarded', org: 'Global Industries', time: '3 hours ago', type: 'info' },
-    ];
-
-    // Use mock data
-    const overview = mockOverview;
-    const companyRegistrationsData = mockCompanyRegistrations;
-    const revenueData = mockRevenueData;
-    const subscriptionPlanData = mockSubscriptionPlanData;
-    const topOrganizations = mockTopOrganizations;
-    const recentActivities = mockRecentActivities;
+    // Chart loading skeleton
+    const ChartLoadingSkeleton = () => (
+        <div className="h-80 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-[#4469e5]" />
+        </div>
+    );
 
     // Company Stats
     const companyStats: StatCard[] = overview ? [
@@ -707,23 +647,27 @@ export const DashboardPage = () => {
                         <CardDescription>Monthly trend of new company registrations</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RechartsLineChart data={companyRegistrationsData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey="companies" 
-                                        stroke="#4469e5" 
-                                        strokeWidth={3}
-                                        dot={{ fill: '#4469e5', strokeWidth: 2, r: 4 }}
-                                    />
-                                </RechartsLineChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {companyTrendLoading ? (
+                            <ChartLoadingSkeleton />
+                        ) : (
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsLineChart data={companyRegistrationsData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="companies"
+                                            stroke="#4469e5"
+                                            strokeWidth={3}
+                                            dot={{ fill: '#4469e5', strokeWidth: 2, r: 4 }}
+                                        />
+                                    </RechartsLineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -734,24 +678,28 @@ export const DashboardPage = () => {
                         <CardDescription>Monthly recurring revenue trends</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={revenueData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="mrr" 
-                                        stroke="#ee9807" 
-                                        fill="#ee9807"
-                                        fillOpacity={0.3}
-                                        strokeWidth={3}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {revenueLoading ? (
+                            <ChartLoadingSkeleton />
+                        ) : (
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={revenueData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="mrr"
+                                            stroke="#ee9807"
+                                            fill="#ee9807"
+                                            fillOpacity={0.3}
+                                            strokeWidth={3}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -764,27 +712,31 @@ export const DashboardPage = () => {
                         <CardDescription>Distribution of subscription plans</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <RechartsPieChart>
-                                    <Pie
-                                        data={subscriptionPlanData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {subscriptionPlanData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color as string} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                </RechartsPieChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {subscriptionLoading ? (
+                            <ChartLoadingSkeleton />
+                        ) : (
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsPieChart>
+                                        <Pie
+                                            data={subscriptionPlanData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            outerRadius={80}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {subscriptionPlanData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color as string} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                    </RechartsPieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -795,49 +747,60 @@ export const DashboardPage = () => {
                         <CardDescription>Organizations with highest activity levels</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {topOrganizations.map((org) => (
-                                <div key={org.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#4469e5] to-[#ee9807] flex items-center justify-center text-white font-semibold">
-                                            {org.name[0]}
+                        {topOrgsLoading ? (
+                            <div className="flex items-center justify-center h-64">
+                                <Loader2 className="w-6 h-6 animate-spin text-[#4469e5]" />
+                            </div>
+                        ) : topOrganizations.length === 0 ? (
+                            <div className="text-center py-8">
+                                <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                <p className="text-gray-500 dark:text-gray-400">No organizations found</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {topOrganizations.map((org) => (
+                                    <div key={org.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#4469e5] to-[#ee9807] flex items-center justify-center text-white font-semibold">
+                                                {org.name[0]}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 dark:text-white">
+                                                    {org.name}
+                                                </p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {org.users} users · {org.plan}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900 dark:text-white">
-                                                {org.name}
-                                            </p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                {org.users} users · {org.plan}
-                                            </p>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <p className="font-semibold text-gray-900 dark:text-white">
+                                                    {org.mrr}
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    MRR
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    {org.activity}%
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    Activity
+                                                </p>
+                                            </div>
+                                            <Badge
+                                                variant={org.status === 'active' ? 'default' : 'outline'}
+                                                className="capitalize"
+                                            >
+                                                {org.status}
+                                            </Badge>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-right">
-                                            <p className="font-semibold text-gray-900 dark:text-white">
-                                                {org.mrr}
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                MRR
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {org.activity}%
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                Activity
-                                            </p>
-                                        </div>
-                                        <Badge
-                                            variant={org.status === 'active' ? 'default' : 'outline'}
-                                            className="capitalize"
-                                        >
-                                            {org.status}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -879,6 +842,11 @@ export const DashboardPage = () => {
                         <CardDescription>Latest platform activities and events</CardDescription>
                     </CardHeader>
                     <CardContent>
+                        {activityLoading ? (
+                            <div className="flex items-center justify-center h-64">
+                                <Loader2 className="w-6 h-6 animate-spin text-[#4469e5]" />
+                            </div>
+                        ) : (
                         <div className="space-y-3">
                             {recentActivities.length > 0 ? (
                                 recentActivities.slice(0, 5).map((activity) => {
@@ -951,6 +919,7 @@ export const DashboardPage = () => {
                                 </div>
                             )}
                         </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

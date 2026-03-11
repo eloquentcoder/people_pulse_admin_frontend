@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  ArrowLeft, 
-  Edit, 
-  MoreVertical,
+import {
+  Building2,
+  ArrowLeft,
+  Edit,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -16,88 +15,41 @@ import {
   Mail,
   MapPin,
   UserPlus,
-  FileText,
-  Settings,
-  Activity,
   TrendingUp,
-  Shield,
-  Clock
+  Clock,
+  Briefcase
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui/card';
 import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
-// import { 
-//   useGetOrganizationQuery,
-//   useActivateOrganizationMutation,
-//   useDeactivateOrganizationMutation,
-// } from '../apis/organization.api';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/common/components/ui/tabs';
+import {
+  useGetOrganizationQuery,
+  useActivateOrganizationMutation,
+  useDeactivateOrganizationMutation,
+} from '../apis/organization.api';
 import type { Organization } from '../models/organization.model';
 import { toast } from 'sonner';
 import { EditOrganizationModal } from '../components/edit-organization-modal';
 import { OnboardAdminModal } from '../components/onboard-admin-modal';
+import { OrganizationUsersTab } from '../components/organization-users-tab';
+import { OrganizationDepartmentsTab } from '../components/organization-departments-tab';
+import { OrganizationBranchesTab } from '../components/organization-branches-tab';
+import { OrganizationDesignationsTab } from '../components/organization-designations-tab';
 
 const OrganizationDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showOnboardModal, setShowOnboardModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // API queries - COMMENTED OUT
-  // const { data: organizationData, isLoading, error } = useGetOrganizationQuery(Number(id));
-  // const [activateOrganization] = useActivateOrganizationMutation();
-  // const [deactivateOrganization] = useDeactivateOrganizationMutation();
+  // API queries
+  const { data: organizationData, isLoading, error, refetch } = useGetOrganizationQuery(Number(id));
+  const [activateOrganization] = useActivateOrganizationMutation();
+  const [deactivateOrganization] = useDeactivateOrganizationMutation();
 
-  // Mock organization data
-  const mockOrganization: Organization = {
-    id: Number(id) || 1,
-    name: 'Acme Corporation',
-    email: 'contact@acme.com',
-    phone: '+1-555-0101',
-    address: '123 Business Street',
-    city: 'San Francisco',
-    state: 'CA',
-    country: 'USA',
-    postal_code: '94105',
-    website: 'https://acme.com',
-    industry: 'Technology',
-    company_size: '250-500',
-    description: 'A leading technology company specializing in innovative solutions.',
-    status: 'active',
-    created_at: '2024-01-15T10:00:00Z',
-    updated_at: '2024-06-20T14:30:00Z',
-    users_count: 250,
-    users: [
-      {
-        id: 1,
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'john.doe@acme.com',
-        user_type: 'organization_admin',
-        is_active: true,
-        organization_id: Number(id) || 1,
-      },
-      {
-        id: 2,
-        first_name: 'Jane',
-        last_name: 'Smith',
-        email: 'jane.smith@acme.com',
-        user_type: 'employee',
-        is_active: true,
-        organization_id: Number(id) || 1,
-      },
-    ],
-    active_subscription: {
-      id: 1,
-      plan: { id: 1, name: 'Enterprise', price: 2500 },
-      status: 'active',
-      amount: 2500,
-    },
-    trial_ends_at: undefined,
-  };
-
-  const isLoading = false;
-  const error = null;
-  const organization = mockOrganization;
+  const organization = organizationData?.data as Organization | undefined;
 
   // Check if organization has an admin user
   const hasAdmin = organization?.users?.some(user => user.user_type === 'organization_admin');
@@ -105,13 +57,17 @@ const OrganizationDetailPage = () => {
   const handleStatusToggle = async () => {
     if (!organization) return;
 
-    // Mock status toggle
-    if (organization.status === 'active') {
-      toast.success('Organization deactivated successfully');
-      console.log('Deactivate organization:', organization.id);
-    } else {
-      toast.success('Organization activated successfully');
-      console.log('Activate organization:', organization.id);
+    try {
+      if (organization.status === 'active') {
+        await deactivateOrganization(organization.id).unwrap();
+        toast.success('Organization deactivated successfully');
+      } else {
+        await activateOrganization(organization.id).unwrap();
+        toast.success('Organization activated successfully');
+      }
+      refetch();
+    } catch {
+      toast.error('Failed to update organization status');
     }
   };
 
@@ -132,7 +88,7 @@ const OrganizationDetailPage = () => {
     if (!subscription) {
       return <Badge variant="outline" className="text-gray-500">No Subscription</Badge>;
     }
-    
+
     switch (subscription.status) {
       case 'active':
         return <Badge variant="default" className="bg-blue-100 text-blue-800">Active</Badge>;
@@ -214,8 +170,8 @@ const OrganizationDetailPage = () => {
           <Button
             onClick={handleStatusToggle}
             className={`flex items-center gap-2 ${
-              organization.status === 'active' 
-                ? 'bg-red-600 hover:bg-red-700' 
+              organization.status === 'active'
+                ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-green-600 hover:bg-green-700'
             }`}
           >
@@ -234,264 +190,322 @@ const OrganizationDetailPage = () => {
         </div>
       </div>
 
-      {/* Organization Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                Organization Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
-                  <p className="text-gray-900 dark:text-white">{organization.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
-                  <div className="mt-1">
-                    {getStatusBadge(organization.status)}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</label>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 dark:text-white">{organization.email}</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</label>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 dark:text-white">{organization.phone || 'Not provided'}</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Website</label>
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-gray-400" />
-                    {organization.website ? (
-                      <a 
-                        href={organization.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {organization.website}
-                      </a>
-                    ) : (
-                      <span className="text-gray-500">Not provided</span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Industry</label>
-                  <p className="text-gray-900 dark:text-white">{organization.industry || 'Not specified'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Company Size</label>
-                  <p className="text-gray-900 dark:text-white">{organization.company_size || 'Not specified'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created</label>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 dark:text-white">
-                      {new Date(organization.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {organization.address && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Address</label>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400 mt-1" />
-                    <div className="text-gray-900 dark:text-white">
-                      <p>{organization.address}</p>
-                      {organization.city && organization.state && (
-                        <p>{organization.city}, {organization.state} {organization.postal_code}</p>
-                      )}
-                      {organization.country && <p>{organization.country}</p>}
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="flex flex-wrap gap-1 h-auto p-1">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Users ({organization.users_count || organization.users?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="departments" className="flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            Departments ({organization.departments_count || organization.departments?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="branches" className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Branches ({organization.branches_count || organization.branches?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="designations" className="flex items-center gap-2">
+            <Briefcase className="w-4 h-4" />
+            Designations ({organization.positions_count || organization.positions?.length || 0})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Info */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5" />
+                    Organization Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
+                      <p className="text-gray-900 dark:text-white">{organization.name}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
+                      <div className="mt-1">
+                        {getStatusBadge(organization.status)}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</label>
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-900 dark:text-white">{organization.email}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</label>
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-900 dark:text-white">{organization.phone || 'Not provided'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Website</label>
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-gray-400" />
+                        {organization.website ? (
+                          <a
+                            href={organization.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            {organization.website}
+                          </a>
+                        ) : (
+                          <span className="text-gray-500">Not provided</span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Industry</label>
+                      <p className="text-gray-900 dark:text-white">{organization.industry || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Company Size</label>
+                      <p className="text-gray-900 dark:text-white">{organization.company_size || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created</label>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-900 dark:text-white">
+                          {new Date(organization.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
 
-              {organization.description && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
-                  <p className="text-gray-900 dark:text-white mt-1">{organization.description}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  {organization.address && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Address</label>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-gray-400 mt-1" />
+                        <div className="text-gray-900 dark:text-white">
+                          <p>{organization.address}</p>
+                          {organization.city && organization.state && (
+                            <p>{organization.city}, {organization.state} {organization.postal_code}</p>
+                          )}
+                          {organization.country && <p>{organization.country}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-          {/* Users */}
+                  {organization.description && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
+                      <p className="text-gray-900 dark:text-white mt-1">{organization.description}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Statistics Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Organization Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {organization.users_count || organization.users?.length || 0}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Users</p>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <Building2 className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {organization.departments_count || organization.departments?.length || 0}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Departments</p>
+                    </div>
+                    <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                      <MapPin className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {organization.branches_count || organization.branches?.length || 0}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Branches</p>
+                    </div>
+                    <div className="text-center p-4 bg-rose-50 dark:bg-rose-900/20 rounded-lg">
+                      <Briefcase className="w-8 h-8 text-rose-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {organization.positions_count || organization.positions?.length || 0}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Designations</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Subscription Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Subscription
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {organization.active_subscription ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Plan</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {organization.active_subscription.plan?.name || 'Unknown Plan'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</span>
+                        {getSubscriptionBadge(organization.active_subscription)}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Amount</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          ${organization.active_subscription.amount || 0}/month
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <DollarSign className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 dark:text-gray-400">No subscription</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Trial Info - Only show if on trial (no active subscription and trial_ends_at exists) */}
+              {organization.trial_ends_at && !organization.active_subscription && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="w-5 h-5" />
+                      Trial Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Trial Ends</span>
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {new Date(organization.trial_ends_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Days Remaining</span>
+                        <span className={`text-sm font-semibold ${
+                          Math.ceil((new Date(organization.trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) <= 7
+                            ? 'text-red-600'
+                            : 'text-orange-600'
+                        }`}>
+                          {Math.max(0, Math.ceil((new Date(organization.trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} days
+                        </span>
+                      </div>
+                      {Math.ceil((new Date(organization.trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) <= 0 && (
+                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                            Trial has expired
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Users Tab */}
+        <TabsContent value="users" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Users ({organization.users?.length || 0})
+                Organization Users
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {organization.users && organization.users.length > 0 ? (
-                <div className="space-y-3">
-                  {organization.users.slice(0, 5).map((user) => (
-                    <div key={user.id} className="flex items-center gap-3 p-3 rounded-lg border">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4469e5] to-[#ee9807] flex items-center justify-center text-white text-sm font-semibold">
-                        {user.first_name[0]}{user.last_name[0]}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {user.first_name} {user.last_name}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          variant={user.user_type === 'organization_admin' ? 'default' : 'outline'} 
-                          className={`capitalize ${
-                            user.user_type === 'organization_admin' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : ''
-                          }`}
-                        >
-                          {user.user_type === 'organization_admin' ? 'Admin' : user.user_type?.replace('_', ' ')}
-                        </Badge>
-                        {user.user_type === 'organization_admin' && (
-                          <Shield className="w-4 h-4 text-blue-600" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {organization.users.length > 5 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                      +{organization.users.length - 5} more users
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 dark:text-gray-400">No users found</p>
-                </div>
-              )}
+              <OrganizationUsersTab users={organization.users || []} />
             </CardContent>
           </Card>
-        </div>
+        </TabsContent>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Subscription Info */}
+        {/* Departments Tab */}
+        <TabsContent value="departments" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
-                Subscription
+                <Building2 className="w-5 h-5" />
+                Departments
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {organization.active_subscription ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Plan</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {organization.active_subscription.plan?.name || 'Unknown Plan'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</span>
-                    {getSubscriptionBadge(organization.active_subscription)}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Amount</span>
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      ${organization.active_subscription.amount || 0}/month
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <DollarSign className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500 dark:text-gray-400">No subscription</p>
-                </div>
-              )}
+              <OrganizationDepartmentsTab departments={organization.departments || []} />
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Quick Actions */}
+        {/* Branches Tab */}
+        <TabsContent value="branches" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Quick Actions
+                <MapPin className="w-5 h-5" />
+                Branches
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <FileText className="w-4 h-4 mr-2" />
-                View Documents
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Activity className="w-4 h-4 mr-2" />
-                View Activity
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Analytics
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Shield className="w-4 h-4 mr-2" />
-                Security
-              </Button>
+            <CardContent>
+              <OrganizationBranchesTab branches={organization.branches || []} />
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Trial Info */}
-          {organization.trial_ends_at && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  Trial Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Trial Ends</span>
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {new Date(organization.trial_ends_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Days Remaining</span>
-                    <span className="text-sm font-semibold text-orange-600">
-                      {Math.ceil((new Date(organization.trial_ends_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+        {/* Designations Tab */}
+        <TabsContent value="designations" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5" />
+                Designations (Positions)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OrganizationDesignationsTab positions={organization.positions || []} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Modals */}
       <EditOrganizationModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         onSuccess={() => {
-          // Refetch organization data
-          window.location.reload();
+          refetch();
         }}
         organization={organization}
       />
@@ -500,8 +514,7 @@ const OrganizationDetailPage = () => {
         isOpen={showOnboardModal}
         onClose={() => setShowOnboardModal(false)}
         onSuccess={() => {
-          // Refetch organization data
-          window.location.reload();
+          refetch();
         }}
         organizationId={organization?.id || 0}
       />

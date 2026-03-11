@@ -16,7 +16,9 @@ import { Switch } from '@/common/components/ui/switch';
 import { Badge } from '@/common/components/ui/badge';
 import { Plan, PlanFormData } from '../types';
 import { planValidationSchema } from '../validations';
-import { useState } from 'react';
+import { FeatureSelector } from './FeatureSelector';
+import { useGetPlansQuery } from '../apis/plans.api';
+import { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
 
 interface PlanFormProps {
@@ -27,8 +29,11 @@ interface PlanFormProps {
   loading?: boolean;
 }
 
+const CURRENCIES = ['USD', 'NGN', 'GBP', 'EUR', 'CAD', 'AUD'];
+
 export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormProps) {
-  const [featureInput, setFeatureInput] = useState('');
+  const { data: plansData } = useGetPlansQuery({});
+  const availablePlans = plansData?.data?.data || [];
 
   const formik = useFormik<PlanFormData>({
     initialValues: {
@@ -40,9 +45,13 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
       max_employees: plan?.max_employees || 10,
       max_storage_gb: plan?.max_storage_gb || 10,
       features: plan?.features || [],
+      feature_ids: plan?.feature_ids || plan?.features_data?.map(f => f.id) || [],
       is_active: plan?.is_active ?? true,
       is_popular: plan?.is_popular || false,
       trial_days: plan?.trial_days || 14,
+      currency: plan?.currency || 'USD',
+      display_order: plan?.display_order || 0,
+      parent_plan_id: plan?.parent_plan_id || null,
     },
     validationSchema: planValidationSchema,
     onSubmit: (values) => {
@@ -51,17 +60,11 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
     enableReinitialize: true,
   });
 
-  const handleAddFeature = () => {
-    if (featureInput.trim()) {
-      formik.setFieldValue('features', [...formik.values.features, featureInput.trim()]);
-      setFeatureInput('');
+  useEffect(() => {
+    if (plan?.features_data) {
+      formik.setFieldValue('feature_ids', plan.features_data.map(f => f.id));
     }
-  };
-
-  const handleRemoveFeature = (index: number) => {
-    const newFeatures = formik.values.features.filter((_, i) => i !== index);
-    formik.setFieldValue('features', newFeatures);
-  };
+  }, [plan]);
 
   const generateSlug = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -77,7 +80,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{plan ? 'Edit Plan' : 'Create New Plan'}</DialogTitle>
           <DialogDescription>
@@ -134,9 +137,9 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price</Label>
               <Input
                 id="price"
                 name="price"
@@ -153,6 +156,25 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="currency">Currency</Label>
+              <Select
+                value={formik.values.currency || 'USD'}
+                onValueChange={(value) => formik.setFieldValue('currency', value)}
+              >
+                <SelectTrigger id="currency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="billing_cycle">Billing Cycle</Label>
               <Select
                 value={formik.values.billing_cycle}
@@ -164,6 +186,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
                 <SelectContent>
                   <SelectItem value="monthly">Monthly</SelectItem>
                   <SelectItem value="yearly">Yearly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
                   <SelectItem value="one-time">One-time</SelectItem>
                 </SelectContent>
               </Select>
@@ -173,7 +196,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="max_employees">Max Employees</Label>
               <Input
@@ -218,46 +241,59 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
                 <p className="text-sm text-destructive">{formik.errors.trial_days}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="display_order">Display Order</Label>
+              <Input
+                id="display_order"
+                name="display_order"
+                type="number"
+                value={formik.values.display_order || 0}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="parent_plan_id">Parent Plan (Optional)</Label>
+            <Select
+              value={formik.values.parent_plan_id || '__none__'}
+              onValueChange={(value) => formik.setFieldValue('parent_plan_id', value === '__none__' ? null : value)}
+            >
+              <SelectTrigger id="parent_plan_id">
+                <SelectValue placeholder="Select parent plan (for feature inheritance)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">None</SelectItem>
+                {availablePlans
+                  .filter(p => p.id !== plan?.id)
+                  .map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              If selected, this plan will inherit all features from the parent plan
+            </p>
           </div>
 
           <div className="space-y-2">
             <Label>Features</Label>
-            <div className="flex gap-2">
-              <Input
-                value={featureInput}
-                onChange={(e) => setFeatureInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddFeature();
-                  }
-                }}
-                placeholder="Add a feature..."
-              />
-              <Button
-                type="button"
-                onClick={handleAddFeature}
-                variant="secondary"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formik.values.features.map((feature, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                  {feature}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFeature(index)}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            {formik.touched.features && formik.errors.features && (
-              <p className="text-sm text-destructive">{formik.errors.features as string}</p>
+            <FeatureSelector
+              selectedFeatureIds={formik.values.feature_ids || []}
+              onSelectionChange={(featureIds) => formik.setFieldValue('feature_ids', featureIds)}
+            />
+            {formik.values.parent_plan_id && (
+              <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>Note:</strong> This plan will inherit features from its parent plan. 
+                  Selected features above will be in addition to inherited features.
+                </p>
+              </div>
             )}
           </div>
 

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  Search, 
-  Filter, 
-  Download, 
-  Upload, 
-  Plus, 
-  Eye, 
-  Edit, 
+import {
+  Building2,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Plus,
+  Eye,
+  Edit,
   MoreVertical,
   CheckCircle,
   XCircle,
@@ -31,22 +31,20 @@ import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
 import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
-// import { 
-//   useGetOrganizationsQuery,
-//   useGetOrganizationStatsQuery,
-//   useActivateOrganizationMutation,
-//   useDeactivateOrganizationMutation,
-//   useUploadOrganizationsMutation,
-// } from '../apis/organization.api';
-import type { Organization, OrganizationFilters, OrganizationStats } from '../models/organization.model';
+import {
+  useGetOrganizationsQuery,
+  useGetOrganizationStatsQuery,
+  useActivateOrganizationMutation,
+  useDeactivateOrganizationMutation,
+  useUploadOrganizationsMutation,
+} from '../apis/organization.api';
+import type { Organization, OrganizationFilters } from '../models/organization.model';
 import { AddOrganizationModal } from '../components/add-organization-modal';
-import { 
+import {
   validateExcelFile as validateFile,
   getRequiredFields,
   getOptionalFields
 } from '@/common/helpers/documentValidation';
-import type { Organization } from '../models/organization.model';
-import type { OrganizationFilters } from '../models/organization.model';
 import { toast } from 'sonner';
 
 const OrganizationPage = () => {
@@ -67,185 +65,46 @@ const OrganizationPage = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // API queries - COMMENTED OUT
-  // const { data: organizationsData, isLoading, refetch } = useGetOrganizationsQuery(filters);
-  // const { data: statsData } = useGetOrganizationStatsQuery();
-  // const [activateOrganization] = useActivateOrganizationMutation();
-  // const [deactivateOrganization] = useDeactivateOrganizationMutation(); 
-  // const [uploadOrganizations] = useUploadOrganizationsMutation();
-
-  // Mock data
-  const mockOrganizations: Organization[] = [
-    {
-      id: 1,
-      name: 'Acme Corporation',
-      email: 'contact@acme.com',
-      phone: '+1-555-0101',
-      website: 'https://acme.com',
-      industry: 'Technology',
-      company_size: '250-500',
-      status: 'active',
-      created_at: '2024-01-15T10:00:00Z',
-      updated_at: '2024-06-20T14:30:00Z',
-      users_count: 250,
-      active_subscription: {
-        id: 1,
-        plan: { id: 1, name: 'Enterprise', price: 2500 },
-        status: 'active',
-        amount: 2500,
-      },
-    },
-    {
-      id: 2,
-      name: 'Tech Solutions Inc',
-      email: 'info@techsolutions.com',
-      phone: '+1-555-0202',
-      website: 'https://techsolutions.com',
-      industry: 'Software',
-      company_size: '100-250',
-      status: 'active',
-      created_at: '2024-02-20T09:15:00Z',
-      updated_at: '2024-06-18T11:20:00Z',
-      users_count: 180,
-      active_subscription: {
-        id: 2,
-        plan: { id: 2, name: 'Professional', price: 1800 },
-        status: 'active',
-        amount: 1800,
-      },
-    },
-    {
-      id: 3,
-      name: 'Global Industries',
-      email: 'hello@globalind.com',
-      phone: '+1-555-0303',
-      website: 'https://globalind.com',
-      industry: 'Manufacturing',
-      company_size: '500+',
-      status: 'active',
-      created_at: '2024-03-10T08:30:00Z',
-      updated_at: '2024-06-19T16:45:00Z',
-      users_count: 320,
-      active_subscription: {
-        id: 3,
-        plan: { id: 1, name: 'Enterprise', price: 3200 },
-        status: 'active',
-        amount: 3200,
-      },
-    },
-    {
-      id: 4,
-      name: 'Startup Inc',
-      email: 'team@startup.com',
-      phone: '+1-555-0404',
-      industry: 'Finance',
-      company_size: '10-50',
-      status: 'active',
-      created_at: '2024-05-05T12:00:00Z',
-      updated_at: '2024-06-17T10:15:00Z',
-      users_count: 45,
-      active_subscription: {
-        id: 4,
-        plan: { id: 3, name: 'Basic', price: 450 },
-        status: 'trial',
-        amount: 450,
-      },
-    },
-    {
-      id: 5,
-      name: 'Mega Corp',
-      email: 'contact@megacorp.com',
-      phone: '+1-555-0505',
-      website: 'https://megacorp.com',
-      industry: 'Retail',
-      company_size: '500+',
-      status: 'active',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-06-21T09:00:00Z',
-      users_count: 500,
-      active_subscription: {
-        id: 5,
-        plan: { id: 1, name: 'Enterprise', price: 5000 },
-        status: 'active',
-        amount: 5000,
-      },
-    },
-  ];
-
-  const mockStats: OrganizationStats = {
-    total_organizations: 245,
-    active_organizations: 198,
-    inactive_organizations: 35,
-    suspended_organizations: 12,
-    organizations_with_subscription: 180,
-    organizations_without_subscription: 65,
-    new_this_month: 12,
-    new_this_week: 3,
-  };
-
-  // Filter mock data based on filters
-  let filteredOrganizations = [...mockOrganizations];
-  
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    filteredOrganizations = filteredOrganizations.filter(org =>
-      org.name.toLowerCase().includes(searchLower) ||
-      org.email.toLowerCase().includes(searchLower)
-    );
-  }
-  
-  if (filters.status) {
-    filteredOrganizations = filteredOrganizations.filter(org => org.status === filters.status);
-  }
-  
-  if (filters.subscription_status) {
-    filteredOrganizations = filteredOrganizations.filter(org => 
-      org.active_subscription?.status === filters.subscription_status
-    );
-  }
-
-  // Pagination
-  const perPage = filters.per_page || 15;
-  const currentPage = filters.page || 1;
-  const startIndex = (currentPage - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  const paginatedOrganizations = filteredOrganizations.slice(startIndex, endIndex);
-
-  const mockOrganizationsData = {
-    data: paginatedOrganizations,
-    current_page: currentPage,
-    last_page: Math.ceil(filteredOrganizations.length / perPage),
-    per_page: perPage,
-    total: filteredOrganizations.length,
-  };
-
-  const isLoading = false;
-  const organizationsData = { data: mockOrganizationsData };
-  const statsData = { data: mockStats };
-
-  const refetch = () => {
-    // Mock refetch - no-op
-    console.log('Refetch called (mocked)');
-  };
+  // API queries
+  const { data: organizationsData, isLoading, refetch } = useGetOrganizationsQuery(filters);
+  const { data: statsData } = useGetOrganizationStatsQuery();
+  const [activateOrganization] = useActivateOrganizationMutation();
+  const [deactivateOrganization] = useDeactivateOrganizationMutation();
+  const [uploadOrganizations] = useUploadOrganizationsMutation();
 
   const handleActivate = async (id: number) => {
-    // Mock activation
-    toast.success('Organization activated successfully');
-    console.log('Activate organization:', id);
+    try {
+      await activateOrganization(id).unwrap();
+      toast.success('Organization activated successfully');
+      refetch();
+    } catch {
+      toast.error('Failed to activate organization');
+    }
   };
 
   const handleDeactivate = async (id: number) => {
-    // Mock deactivation
-    toast.success('Organization deactivated successfully');
-    console.log('Deactivate organization:', id);
+    try {
+      await deactivateOrganization(id).unwrap();
+      toast.success('Organization deactivated successfully');
+      refetch();
+    } catch {
+      toast.error('Failed to deactivate organization');
+    }
   };
 
   const handleUpload = async () => {
     if (!uploadFile) return;
-    // Mock upload
-    toast.success('Upload completed! Imported: 5 organizations');
-    setShowUploadModal(false);
-    setUploadFile(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      const result = await uploadOrganizations(formData).unwrap();
+      toast.success(`Upload completed! Imported: ${result.data.imported_count} organizations`);
+      setShowUploadModal(false);
+      setUploadFile(null);
+      refetch();
+    } catch {
+      toast.error('Failed to upload organizations');
+    }
   };
 
 
@@ -263,14 +122,6 @@ const OrganizationPage = () => {
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
-  };
-
-  const handleSort = (sortBy: string) => {
-    setFilters(prev => ({
-      ...prev,
-      sort_by: sortBy,
-      sort_order: prev.sort_by === sortBy && prev.sort_order === 'asc' ? 'desc' : 'asc'
-    }));
   };
 
 
@@ -315,11 +166,11 @@ const OrganizationPage = () => {
     }
   };
 
-    const getSubscriptionBadge = (activeSubscription?: Organization['active_subscription']) => {
+  const getSubscriptionBadge = (activeSubscription?: Organization['active_subscription']) => {
     if (!activeSubscription) {
       return <Badge variant="outline" className="text-gray-500">No Subscription</Badge>;
     }
-    
+
     switch (activeSubscription.status) {
       case 'active':
         return <Badge variant="default" className="bg-blue-100 text-blue-800">Active</Badge>;
@@ -342,6 +193,10 @@ const OrganizationPage = () => {
       </div>
     );
   }
+
+  const organizations = organizationsData?.data?.data || [];
+  const stats = statsData?.data;
+  const pagination = organizationsData?.data;
 
   return (
     <div className="space-y-6">
@@ -374,7 +229,7 @@ const OrganizationPage = () => {
               className="hidden"
             />
           </label>
-          <Button 
+          <Button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
           >
@@ -385,14 +240,14 @@ const OrganizationPage = () => {
       </div>
 
       {/* Stats Cards */}
-      {statsData && (
+      {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{statsData.data.total_organizations}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total_organizations}</p>
                 </div>
                 <Building2 className="w-8 h-8 text-[#4469e5]" />
               </div>
@@ -403,7 +258,7 @@ const OrganizationPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active</p>
-                  <p className="text-2xl font-bold text-green-600">{statsData.data.active_organizations}</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.active_organizations}</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-500" />
               </div>
@@ -414,7 +269,7 @@ const OrganizationPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">With Subscription</p>
-                  <p className="text-2xl font-bold text-blue-600">{statsData.data.organizations_with_subscription}</p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.organizations_with_subscription}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-500" />
               </div>
@@ -425,7 +280,7 @@ const OrganizationPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">New This Month</p>
-                  <p className="text-2xl font-bold text-purple-600">{statsData.data.new_this_month}</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.new_this_month}</p>
                 </div>
                 <Calendar className="w-8 h-8 text-purple-500" />
               </div>
@@ -475,7 +330,7 @@ const OrganizationPage = () => {
                   id="status"
                   value={filters.status || ''}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent dark:bg-gray-800 dark:border-gray-700"
                 >
                   <option value="">All Statuses</option>
                   <option value="active">Active</option>
@@ -489,7 +344,7 @@ const OrganizationPage = () => {
                   id="subscription_status"
                   value={filters.subscription_status || ''}
                   onChange={(e) => handleFilterChange('subscription_status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent dark:bg-gray-800 dark:border-gray-700"
                 >
                   <option value="">All Subscriptions</option>
                   <option value="active">Active</option>
@@ -503,7 +358,7 @@ const OrganizationPage = () => {
                   id="sort_by"
                   value={filters.sort_by || 'created_at'}
                   onChange={(e) => handleFilterChange('sort_by', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent dark:bg-gray-800 dark:border-gray-700"
                 >
                   <option value="created_at">Created Date</option>
                   <option value="name">Name</option>
@@ -526,7 +381,7 @@ const OrganizationPage = () => {
                   Organizations
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                  {organizationsData?.data?.data?.length || 0} organizations found
+                  {pagination?.total || 0} organizations found
                 </CardDescription>
               </div>
             </div>
@@ -539,7 +394,7 @@ const OrganizationPage = () => {
                   id="per_page"
                   value={filters.per_page || 15}
                   onChange={(e) => handlePerPageChange(Number(e.target.value))}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
+                  className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4469e5] focus:border-transparent dark:bg-gray-800 dark:border-gray-700"
                 >
                   <option value={10}>10</option>
                   <option value={15}>15</option>
@@ -588,7 +443,7 @@ const OrganizationPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {organizationsData?.data?.data?.map((org) => (
+                {organizations.map((org: Organization) => (
                   <tr key={org.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-4">
@@ -645,16 +500,16 @@ const OrganizationPage = () => {
                     </td>
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => navigate(`/organizations/${org.id}`)}
                           className="hover:bg-blue-50 hover:text-blue-600"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => navigate(`/organizations/${org.id}`)}
                           className="hover:bg-green-50 hover:text-green-600"
@@ -687,7 +542,7 @@ const OrganizationPage = () => {
                     </td>
                   </tr>
                 ))}
-                {(!organizationsData?.data || organizationsData.data.data.length === 0) && (
+                {organizations.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-12 text-center">
                       <div className="flex flex-col items-center gap-4">
@@ -699,7 +554,7 @@ const OrganizationPage = () => {
                           </p>
                         </div>
                         {!filters.search && (
-                          <Button 
+                          <Button
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2"
                           >
@@ -714,24 +569,24 @@ const OrganizationPage = () => {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
-          {organizationsData && organizationsData.data.last_page > 1 && (
+          {pagination && pagination.last_page > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <span>
-                  Showing {((organizationsData.data.current_page - 1) * (filters.per_page || 15)) + 1} to{' '}
-                  {Math.min(organizationsData.data.current_page * (filters.per_page || 15), organizationsData.data.total)} of{' '}
-                  {organizationsData.data.total} results
+                  Showing {((pagination.current_page - 1) * (filters.per_page || 15)) + 1} to{' '}
+                  {Math.min(pagination.current_page * (filters.per_page || 15), pagination.total)} of{' '}
+                  {pagination.total} results
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(1)}
-                  disabled={organizationsData.data.current_page === 1}
+                  disabled={pagination.current_page === 1}
                   className="flex items-center gap-1"
                 >
                   <ChevronsLeft className="w-4 h-4" />
@@ -739,28 +594,28 @@ const OrganizationPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                    onClick={() => handlePageChange(organizationsData.data.current_page - 1)}
-                  disabled={organizationsData.data.current_page === 1}
+                  onClick={() => handlePageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
                   className="flex items-center gap-1"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                
+
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, organizationsData.data.last_page) }, (_, i) => {
-                    const startPage = Math.max(1, organizationsData.data.current_page - 2);
+                  {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                    const startPage = Math.max(1, pagination.current_page - 2);
                     const page = startPage + i;
-                    if (page > organizationsData.data.last_page) return null;
-                    
+                    if (page > pagination.last_page) return null;
+
                     return (
                       <Button
                         key={page}
-                        variant={page === organizationsData.data.current_page ? "default" : "outline"}
+                        variant={page === pagination.current_page ? "default" : "outline"}
                         size="sm"
                         onClick={() => handlePageChange(page)}
                         className={`w-8 h-8 p-0 ${
-                          page === organizationsData.data.current_page 
-                            ? 'bg-[#4469e5] text-white' 
+                          page === pagination.current_page
+                            ? 'bg-[#4469e5] text-white'
                             : 'hover:bg-gray-50'
                         }`}
                       >
@@ -769,12 +624,12 @@ const OrganizationPage = () => {
                     );
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePageChange(organizationsData.data.current_page + 1)}
-                  disabled={organizationsData.data.current_page === organizationsData.data.last_page}
+                  onClick={() => handlePageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
                   className="flex items-center gap-1"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -782,8 +637,8 @@ const OrganizationPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePageChange(organizationsData.data.last_page)}
-                  disabled={organizationsData.data.current_page === organizationsData.data.last_page}
+                  onClick={() => handlePageChange(pagination.last_page)}
+                  disabled={pagination.current_page === pagination.last_page}
                   className="flex items-center gap-1"
                 >
                   <ChevronsRight className="w-4 h-4" />

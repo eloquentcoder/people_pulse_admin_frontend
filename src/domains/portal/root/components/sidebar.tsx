@@ -1,33 +1,35 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-    LayoutDashboard, 
-    Building2, 
-    Users, 
-    CreditCard, 
-    Package, 
+import {
+    LayoutDashboard,
+    Building2,
+    Users,
+    CreditCard,
+    Package,
     Settings,
     HelpCircle,
     BarChart3,
     Bell,
     FileText,
-    Wallet,
     X,
     Shield,
-    ClipboardList
+    ClipboardList,
+    Tag,
+    Megaphone
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import logo from '@/assets/favicon.png';
+import { useGetSupportTicketStatsQuery } from '@/domains/portal/support-tickets/apis/support-ticket.api';
 
 interface NavItem {
     title: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
-    badge?: string;
+    badgeKey?: 'openTickets';
 }
 
-const navItems: NavItem[] = [
+const navItemsConfig: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -64,9 +66,9 @@ const navItems: NavItem[] = [
         icon: Package,
     },
     {
-        title: 'Payment Gateways',
-        href: '/payment-gateways',
-        icon: Wallet,
+        title: 'Features',
+        href: '/features',
+        icon: Tag,
     },
     {
         title: 'Analytics',
@@ -82,7 +84,12 @@ const navItems: NavItem[] = [
         title: 'Support Tickets',
         href: '/support',
         icon: HelpCircle,
-        badge: '3',
+        badgeKey: 'openTickets',
+    },
+    {
+        title: 'Announcements',
+        href: '/announcements',
+        icon: Megaphone,
     },
     {
         title: 'Notifications',
@@ -100,6 +107,20 @@ export const Sidebar = () => {
     const { isOpen, close } = useSidebar();
     const location = useLocation();
 
+    // Fetch support ticket stats for badge
+    const { data: ticketStatsData } = useGetSupportTicketStatsQuery();
+    const openTicketsCount = ticketStatsData?.data?.open_tickets || 0;
+
+    // Build nav items with dynamic badges
+    const navItems = useMemo(() => {
+        return navItemsConfig.map(item => ({
+            ...item,
+            badge: item.badgeKey === 'openTickets' && openTicketsCount > 0
+                ? openTicketsCount.toString()
+                : undefined
+        }));
+    }, [openTicketsCount]);
+
     // Close sidebar on route change (mobile)
     useEffect(() => {
         close();
@@ -109,7 +130,7 @@ export const Sidebar = () => {
         <>
             {/* Overlay */}
             {isOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                     onClick={close}
                 />
@@ -168,8 +189,8 @@ export const Sidebar = () => {
                                     {item.badge && (
                                         <span className={cn(
                                             'px-2 py-0.5 rounded-full text-xs font-semibold',
-                                            isActive 
-                                                ? 'bg-white/20 text-white' 
+                                            isActive
+                                                ? 'bg-white/20 text-white'
                                                 : 'bg-[#ee9807] text-white'
                                         )}>
                                             {item.badge}

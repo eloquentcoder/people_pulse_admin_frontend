@@ -3,8 +3,6 @@ import {
   DollarSign,
   CreditCard,
   TrendingUp,
-  TrendingDown,
-  AlertCircle,
   CheckCircle,
   XCircle,
   Clock,
@@ -14,16 +12,11 @@ import {
   Download,
   FileText,
   Building2,
-  Calendar,
   ChevronsUpDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   RefreshCw,
-  ExternalLink,
+  Loader2,
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/common/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui/card'
 import { Badge } from '@/common/components/ui/badge'
 import { Button } from '@/common/components/ui/button'
 import { Input } from '@/common/components/ui/input'
@@ -36,8 +29,9 @@ import {
   SelectValue,
 } from '@/common/components/ui/select'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/common/components/ui/table'
-import type { BillingTransaction, BillingFilters, BillingStats } from '../models/billing.model'
+import type { BillingTransaction, BillingFilters } from '../models/billing.model'
 import { BillingTransactionModal } from '../components/billing-transaction-modal'
+import { useGetTransactionsQuery, useGetStatsQuery } from '../apis/billing.api'
 
 const BillingPage = () => {
   const [filters, setFilters] = useState<BillingFilters>({
@@ -56,153 +50,28 @@ const BillingPage = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<BillingTransaction | null>(null)
 
-  // Mock data - replace with actual API calls
-  const billingStats: BillingStats = {
-    total_revenue: 2456789.50,
-    total_transactions: 1247,
-    pending_payments: 234567.50,
-    failed_payments: 12345.00,
-    refunded_amount: 45678.25,
-    monthly_revenue: 189234.75,
-    success_rate: 96.5,
+  // API queries
+  const { data: statsResponse, isLoading: statsLoading } = useGetStatsQuery()
+  const { data: transactionsResponse, isLoading: transactionsLoading } = useGetTransactionsQuery(filters)
+
+  // Extract data from API responses
+  const billingStats = statsResponse?.data || {
+    total_revenue: 0,
+    total_transactions: 0,
+    pending_payments: 0,
+    failed_payments: 0,
+    refunded_amount: 0,
+    monthly_revenue: 0,
+    success_rate: 0,
   }
 
-  const transactions: BillingTransaction[] = [
-    {
-      id: 1,
-      organization_id: 1,
-      subscription_id: 1,
-      payment_gateway_id: 1,
-      transaction_id: 'TXN-2025-001',
-      type: 'subscription',
-      amount: 299.99,
-      refunded_amount: 0,
-      currency: 'USD',
-      status: 'completed',
-      payment_status: 'succeeded',
-      payment_method: 'credit_card',
-      gateway_transaction_id: 'ch_1234567890',
-      description: 'Monthly subscription payment',
-      billing_date: '2025-01-15',
-      customer_email: 'admin@techcorp.com',
-      customer_name: 'TechCorp Inc.',
-      invoice_url: 'https://example.com/invoice/1',
-      receipt_url: 'https://example.com/receipt/1',
-      retry_count: 0,
-      created_at: '2025-01-15T10:30:00Z',
-      updated_at: '2025-01-15T10:30:00Z',
-      organization: { id: 1, name: 'TechCorp Inc.' },
-      subscription: { id: 1, plan_name: 'Professional Plan' },
-      payment_gateway: { id: 1, name: 'Stripe', type: 'stripe' },
-    },
-    {
-      id: 2,
-      organization_id: 2,
-      subscription_id: 2,
-      payment_gateway_id: 2,
-      transaction_id: 'TXN-2025-002',
-      type: 'upgrade',
-      amount: 150.00,
-      refunded_amount: 0,
-      currency: 'USD',
-      status: 'completed',
-      payment_status: 'succeeded',
-      payment_method: 'credit_card',
-      gateway_transaction_id: 'PAYPAL-123456',
-      description: 'Plan upgrade to Enterprise',
-      billing_date: '2025-01-14',
-      customer_email: 'admin@globalsolutions.com',
-      customer_name: 'Global Solutions',
-      invoice_url: 'https://example.com/invoice/2',
-      receipt_url: 'https://example.com/receipt/2',
-      retry_count: 0,
-      created_at: '2025-01-14T14:20:00Z',
-      updated_at: '2025-01-14T14:20:00Z',
-      organization: { id: 2, name: 'Global Solutions' },
-      subscription: { id: 2, plan_name: 'Enterprise Plan' },
-      payment_gateway: { id: 2, name: 'PayPal', type: 'paypal' },
-    },
-    {
-      id: 3,
-      organization_id: 3,
-      subscription_id: 3,
-      payment_gateway_id: 1,
-      transaction_id: 'TXN-2025-003',
-      type: 'subscription',
-      amount: 99.99,
-      refunded_amount: 0,
-      currency: 'USD',
-      status: 'pending',
-      payment_status: 'processing',
-      payment_method: 'credit_card',
-      gateway_transaction_id: 'ch_0987654321',
-      description: 'Monthly subscription payment',
-      billing_date: '2025-01-16',
-      customer_email: 'admin@innovationlabs.com',
-      customer_name: 'Innovation Labs',
-      retry_count: 0,
-      created_at: '2025-01-16T09:15:00Z',
-      updated_at: '2025-01-16T09:15:00Z',
-      organization: { id: 3, name: 'Innovation Labs' },
-      subscription: { id: 3, plan_name: 'Starter Plan' },
-      payment_gateway: { id: 1, name: 'Stripe', type: 'stripe' },
-    },
-    {
-      id: 4,
-      organization_id: 4,
-      subscription_id: 4,
-      payment_gateway_id: 1,
-      transaction_id: 'TXN-2025-004',
-      type: 'refund',
-      amount: 299.99,
-      refunded_amount: 299.99,
-      currency: 'USD',
-      status: 'refunded',
-      payment_status: 'refunded',
-      payment_method: 'credit_card',
-      gateway_transaction_id: 'ch_1111111111',
-      refund_id: 're_1234567890',
-      description: 'Full refund for cancelled subscription',
-      billing_date: '2025-01-13',
-      customer_email: 'admin@digitaldynamics.com',
-      customer_name: 'Digital Dynamics',
-      receipt_url: 'https://example.com/receipt/4',
-      retry_count: 0,
-      created_at: '2025-01-13T16:45:00Z',
-      updated_at: '2025-01-13T16:45:00Z',
-      organization: { id: 4, name: 'Digital Dynamics' },
-      subscription: { id: 4, plan_name: 'Professional Plan' },
-      payment_gateway: { id: 1, name: 'Stripe', type: 'stripe' },
-    },
-    {
-      id: 5,
-      organization_id: 5,
-      subscription_id: 5,
-      payment_gateway_id: 1,
-      transaction_id: 'TXN-2025-005',
-      type: 'subscription',
-      amount: 449.99,
-      refunded_amount: 0,
-      currency: 'USD',
-      status: 'failed',
-      payment_status: 'failed',
-      payment_method: 'credit_card',
-      gateway_transaction_id: 'ch_failed_123',
-      description: 'Monthly subscription payment',
-      billing_date: '2025-01-12',
-      failure_code: 'card_declined',
-      failure_message: 'Your card was declined.',
-      customer_email: 'admin@futuresystems.com',
-      customer_name: 'Future Systems',
-      retry_count: 2,
-      next_retry_at: '2025-01-17T10:00:00Z',
-      created_at: '2025-01-12T11:00:00Z',
-      updated_at: '2025-01-12T11:05:00Z',
-      organization: { id: 5, name: 'Future Systems' },
-      subscription: { id: 5, plan_name: 'Enterprise Plan' },
-      payment_gateway: { id: 1, name: 'Stripe', type: 'stripe' },
-    },
-  ]
+  const transactions: BillingTransaction[] = transactionsResponse?.data?.data || []
+  const pagination = transactionsResponse?.data || {
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0,
+  }
 
   const handleFilterChange = (key: keyof BillingFilters, value: string | number | undefined) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }))
@@ -220,43 +89,10 @@ const BillingPage = () => {
     }))
   }
 
-  // Filter transactions
-  let filteredTransactions = transactions.filter((txn) => {
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
-      if (
-        !txn.transaction_id.toLowerCase().includes(searchLower) &&
-        !txn.organization?.name.toLowerCase().includes(searchLower) &&
-        !txn.customer_email?.toLowerCase().includes(searchLower) &&
-        !txn.description?.toLowerCase().includes(searchLower)
-      ) {
-        return false
-      }
-    }
-    if (filters.status && txn.status !== filters.status) return false
-    if (filters.payment_status && txn.payment_status !== filters.payment_status) return false
-    if (filters.type && txn.type !== filters.type) return false
-    if (filters.billing_date_from && txn.billing_date < filters.billing_date_from) return false
-    if (filters.billing_date_to && txn.billing_date > filters.billing_date_to) return false
-    return true
-  })
-
-  // Sort transactions
-  filteredTransactions = filteredTransactions.sort((a, b) => {
-    const aVal = (a as any)[filters.sort_by || 'billing_date']
-    const bVal = (b as any)[filters.sort_by || 'billing_date']
-    const aStr = String(aVal || '').toLowerCase()
-    const bStr = String(bVal || '').toLowerCase()
-    if (aStr < bStr) return filters.sort_order === 'asc' ? -1 : 1
-    if (aStr > bStr) return filters.sort_order === 'asc' ? 1 : -1
-    return 0
-  })
-
-  const pageCount = Math.max(1, Math.ceil(filteredTransactions.length / (filters.per_page || 15)))
-  const pageItems = filteredTransactions.slice(
-    ((filters.page || 1) - 1) * (filters.per_page || 15),
-    (filters.page || 1) * (filters.per_page || 15)
-  )
+  // Server-side pagination values
+  const pageCount = pagination.last_page || 1
+  const pageItems = transactions
+  const isLoading = statsLoading || transactionsLoading
 
   const formatCurrency = (amount: number, currency = 'USD') => {
     return new Intl.NumberFormat('en-US', {
@@ -375,12 +211,18 @@ const BillingPage = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(billingStats.total_revenue)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              <span className="text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" /> 12% from last month
-              </span>
-            </p>
+            {statsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{formatCurrency(billingStats.total_revenue)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <span className="text-green-600 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" /> Monthly: {formatCurrency(billingStats.monthly_revenue)}
+                  </span>
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -390,8 +232,14 @@ const BillingPage = () => {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{billingStats.total_transactions.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">All time transactions</p>
+            {statsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{billingStats.total_transactions.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground mt-1">All time transactions</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -401,10 +249,18 @@ const BillingPage = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(billingStats.pending_payments)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {((billingStats.pending_payments / billingStats.total_revenue) * 100).toFixed(1)}% of total
-            </p>
+            {statsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{formatCurrency(billingStats.pending_payments)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {billingStats.total_revenue > 0
+                    ? `${((billingStats.pending_payments / billingStats.total_revenue) * 100).toFixed(1)}% of total`
+                    : '0% of total'}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -414,12 +270,18 @@ const BillingPage = () => {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{billingStats.success_rate}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              <span className="text-red-600">
-                {formatCurrency(billingStats.failed_payments)} failed
-              </span>
-            </p>
+            {statsLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{billingStats.success_rate}%</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <span className="text-red-600">
+                    {formatCurrency(billingStats.failed_payments)} failed
+                  </span>
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -582,7 +444,14 @@ const BillingPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pageItems.length === 0 ? (
+            {transactionsLoading ? (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-[#4469e5]" />
+                  <p className="text-gray-500 mt-2">Loading transactions...</p>
+                </TableCell>
+              </TableRow>
+            ) : pageItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   <CreditCard className="h-8 w-8 mx-auto mb-2 text-gray-400" />
@@ -665,50 +534,56 @@ const BillingPage = () => {
         {pageCount > 1 && (
           <div className="flex items-center justify-between px-3 py-2 border-t text-sm">
             <div className="text-xs text-gray-600">
-              Showing {pageItems.length > 0 ? (filters.page || 1) * (filters.per_page || 15) - (filters.per_page || 15) + 1 : 0}–
-              {(filters.page || 1) * (filters.per_page || 15) > filteredTransactions.length
-                ? filteredTransactions.length
-                : (filters.page || 1) * (filters.per_page || 15)}{' '}
-              of {filteredTransactions.length} transactions
+              Showing {pageItems.length > 0 ? ((pagination.current_page - 1) * pagination.per_page) + 1 : 0}–
+              {Math.min(pagination.current_page * pagination.per_page, pagination.total)}{' '}
+              of {pagination.total} transactions
             </div>
             <div className="flex items-center gap-1">
               <button
-                disabled={(filters.page || 1) === 1}
+                disabled={pagination.current_page === 1 || transactionsLoading}
                 onClick={() => handlePageChange(1)}
                 className="h-8 w-8 rounded-md border text-xs disabled:opacity-40"
               >
                 «
               </button>
               <button
-                disabled={(filters.page || 1) === 1}
-                onClick={() => handlePageChange((filters.page || 1) - 1)}
+                disabled={pagination.current_page === 1 || transactionsLoading}
+                onClick={() => handlePageChange(pagination.current_page - 1)}
                 className="h-8 w-8 rounded-md border text-xs disabled:opacity-40"
               >
                 ‹
               </button>
               {Array.from({ length: Math.min(5, pageCount) }).map((_, i) => {
-                const p = i + 1
+                // Calculate page numbers to show around current page
+                let startPage = Math.max(1, pagination.current_page - 2)
+                const endPage = Math.min(pageCount, startPage + 4)
+                if (endPage - startPage < 4) {
+                  startPage = Math.max(1, endPage - 4)
+                }
+                const p = startPage + i
+                if (p > endPage) return null
                 return (
                   <button
                     key={p}
+                    disabled={transactionsLoading}
                     onClick={() => handlePageChange(p)}
                     className={`h-8 w-8 rounded-md border text-xs ${
-                      (filters.page || 1) === p ? 'bg-gray-100 font-medium' : ''
-                    }`}
+                      pagination.current_page === p ? 'bg-gray-100 font-medium' : ''
+                    } disabled:opacity-40`}
                   >
                     {p}
                   </button>
                 )
               })}
               <button
-                disabled={(filters.page || 1) === pageCount}
-                onClick={() => handlePageChange((filters.page || 1) + 1)}
+                disabled={pagination.current_page === pageCount || transactionsLoading}
+                onClick={() => handlePageChange(pagination.current_page + 1)}
                 className="h-8 w-8 rounded-md border text-xs disabled:opacity-40"
               >
                 ›
               </button>
               <button
-                disabled={(filters.page || 1) === pageCount}
+                disabled={pagination.current_page === pageCount || transactionsLoading}
                 onClick={() => handlePageChange(pageCount)}
                 className="h-8 w-8 rounded-md border text-xs disabled:opacity-40"
               >

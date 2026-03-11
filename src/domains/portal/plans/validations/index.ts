@@ -24,7 +24,7 @@ export const planValidationSchema = Yup.object({
 
   billing_cycle: Yup.string()
     .required('Billing cycle is required')
-    .oneOf(['monthly', 'yearly', 'one-time'], 'Invalid billing cycle'),
+    .oneOf(['monthly', 'yearly', 'quarterly', 'one-time'], 'Invalid billing cycle'),
 
   max_employees: Yup.number()
     .required('Maximum employees is required')
@@ -40,7 +40,24 @@ export const planValidationSchema = Yup.object({
 
   features: Yup.array()
     .of(Yup.string().min(1, 'Feature cannot be empty'))
-    .min(1, 'At least one feature is required'),
+    .optional(),
+
+  feature_ids: Yup.array()
+    .of(Yup.string())
+    .optional(),
+
+  currency: Yup.string()
+    .optional()
+    .max(3, 'Currency code must be 3 characters'),
+
+  display_order: Yup.number()
+    .optional()
+    .integer('Must be a whole number')
+    .min(0, 'Display order cannot be negative'),
+
+  parent_plan_id: Yup.string()
+    .nullable()
+    .optional(),
 
   is_active: Yup.boolean()
     .required('Active status is required'),

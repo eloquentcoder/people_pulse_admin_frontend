@@ -8,77 +8,35 @@ import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/common/components/ui/card';
 import { loginValidationSchema, initialLoginValues, type LoginFormValues } from '../schemas/login.schema';
-// import { useLoginMutation } from '../apis/login.api';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '../slices/auth.slice';
+import { useLoginMutation } from '../apis/login.api';
 
 import logo from "@/assets/logo-black.png"
-import type { ApiResponse } from '@/common/models/response.model';
-import type { User } from '@/common/models/user.model';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const [isLoading, setIsLoading] = useState(false);
-    
-    // const [login, { isLoading }] = useLoginMutation();
-
-    // Mock user data
-    const mockUser: User = {
-        id: 1,
-        first_name: 'Admin',
-        last_name: 'User',
-        email: 'admin@peoplepulse.com',
-        user_type: 'platform_admin',
-        is_active: true,
-        organization_id: null,
-    };
-
-    const mockToken = 'mock_jwt_token_' + Date.now();
+    const [login, { isLoading }] = useLoginMutation();
 
     const formik = useFormik<LoginFormValues>({
         initialValues: initialLoginValues,
         validationSchema: loginValidationSchema,
-        onSubmit: async () => {
-            setIsLoading(true);
-            
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
+        onSubmit: async (values) => {
             try {
-                // Mock login - accept any credentials
-                // await login({ ...credentials, remember: remember ?? false }).unwrap();
-                
-                // Use mock data
-                const mockResponse = {
-                    data: {
-                        user: mockUser,
-                        token: mockToken,
-                        expires_in: 3600,
-                    },
-                    message: 'Login successful',
-                    success: true,
-                };
-                
-                // Dispatch to Redux store
-                dispatch(setCredentials({
-                    user: mockResponse.data.user,
-                    token: mockResponse.data.token,
-                }));
+                const response = await login({
+                    email: values.email,
+                    password: values.password,
+                }).unwrap();
                 
                 toast.success('Welcome back!', {
                     description: 'You have successfully signed in.',
                 });
                 navigate('/dashboard');
-            } catch (err) {
-                const error = err as ApiResponse<null>;
+            } catch (err: any) {
+                const errorMessage = err?.data?.message || err?.message || 'Invalid credentials. Please try again.';
                 toast.error('Login Failed', {
-                    description: error.message || 'Invalid credentials. Please try again.',
+                    description: errorMessage,
                 });
                 console.error('Login error:', err);
-            } finally {
-                setIsLoading(false);
             }
         },
     });

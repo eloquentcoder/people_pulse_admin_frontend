@@ -129,9 +129,9 @@ const PlansPage = () => {
   };
 
   const formatPrice = (price: number, cycle: string) => {
-    const formatted = new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'NGN'
     }).format(price);
 
     const suffix = cycle === 'monthly' ? '/mo' : cycle === 'yearly' ? '/yr' : '';
@@ -320,7 +320,7 @@ const PlansPage = () => {
                   Plans
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                  {plansData?.data?.data?.length || 0} plans found
+                  {plansData?.data?.total || plansData?.data?.data?.length || 0} plans found
                 </CardDescription>
               </div>
             </div>
@@ -430,7 +430,6 @@ const PlansPage = () => {
                       <td className="py-6 px-6">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-gray-400" />
                             <span className="font-semibold text-gray-900 dark:text-white">
                               {formatPrice(plan.price, plan.billing_cycle)}
                             </span>

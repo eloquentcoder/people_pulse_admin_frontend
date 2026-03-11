@@ -8,11 +8,16 @@ import { organizationApi } from "@/domains/portal/organizations/apis/organizatio
 import { subscriptionApi } from "@/domains/portal/subscriptions/apis/subscription.api";
 import { plansApi } from "@/domains/portal/plans/apis/plans.api";
 import { userApi } from "@/domains/portal/users/apis/user.api";
-import { paymentGatewayApi } from "@/domains/portal/payment-gateways/apis/payment-gateway.api";
 import { supportTicketApi } from "@/domains/portal/support-tickets/apis/support-ticket.api";
 import { notificationApi } from "@/domains/portal/notifications/apis/notification.api";
 import { settingsApi } from "@/domains/portal/settings/apis/settings.api";
 import { hrTemplateApi } from "@/domains/portal/hr-templates/apis/hr-template.api";
+import { featuresApi } from "@/domains/portal/features/apis/features.api";
+import { billingApi } from "@/domains/portal/billing/apis/billing.api";
+import { analyticsApi } from "@/domains/portal/analytics/apis/analytics.api";
+import { rolesApi } from "@/domains/portal/roles-permissions/apis/roles.api";
+import { profileApi } from "@/domains/portal/profile/apis/profile.api";
+import { announcementsApi } from "@/domains/portal/announcements/apis/announcements.api";
 
 export const store = configureStore({
     reducer: {
@@ -25,11 +30,16 @@ export const store = configureStore({
       [subscriptionApi.reducerPath]: subscriptionApi.reducer,
       [plansApi.reducerPath]: plansApi.reducer,
       [userApi.reducerPath]: userApi.reducer,
-      [paymentGatewayApi.reducerPath]: paymentGatewayApi.reducer,
       [supportTicketApi.reducerPath]: supportTicketApi.reducer,
       [notificationApi.reducerPath]: notificationApi.reducer,
       [settingsApi.reducerPath]: settingsApi.reducer,
-      [hrTemplateApi.reducerPath]: hrTemplateApi.reducer
+      [hrTemplateApi.reducerPath]: hrTemplateApi.reducer,
+      [featuresApi.reducerPath]: featuresApi.reducer,
+      [billingApi.reducerPath]: billingApi.reducer,
+      [analyticsApi.reducerPath]: analyticsApi.reducer,
+      [rolesApi.reducerPath]: rolesApi.reducer,
+      [profileApi.reducerPath]: profileApi.reducer,
+      [announcementsApi.reducerPath]: announcementsApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
@@ -39,12 +49,16 @@ export const store = configureStore({
         .concat(subscriptionApi.middleware)
         .concat(plansApi.middleware)
         .concat(userApi.middleware)
-        .concat(paymentGatewayApi.middleware)
         .concat(supportTicketApi.middleware)
         .concat(notificationApi.middleware)
         .concat(settingsApi.middleware)
         .concat(hrTemplateApi.middleware)
-        ,
+        .concat(featuresApi.middleware)
+        .concat(billingApi.middleware)
+        .concat(analyticsApi.middleware)
+        .concat(rolesApi.middleware)
+        .concat(profileApi.middleware)
+        .concat(announcementsApi.middleware),
   });
 
 // Enable refetchOnFocus and refetchOnReconnect behaviors
