@@ -56,7 +56,7 @@ const navItemsConfig: NavItem[] = [
         icon: Shield,
     },
     {
-        title: 'HR Templates',
+        title: 'Email Templates',
         href: '/hr-templates',
         icon: ClipboardList,
     },

@@ -114,7 +114,13 @@ const FeaturesPage = () => {
     return <Badge variant="outline" className="text-gray-600"><XCircle className="w-3 h-3 mr-1" />Inactive</Badge>;
   };
 
-  const features = featuresData?.data || [];
+  // Handle paginated response: data.data contains the array
+  const responseData = featuresData?.data;
+  const features = Array.isArray(responseData)
+    ? responseData
+    : Array.isArray(responseData?.data)
+      ? responseData.data
+      : [];
   const groupedFeatures = features.reduce((acc, feature) => {
     if (!acc[feature.category]) {
       acc[feature.category] = [];
@@ -273,8 +279,8 @@ const FeaturesPage = () => {
                   {categoryFeatures.map((feature) => (
                     <div key={feature.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#4469e5] to-[#ee9807] flex items-center justify-center text-white font-bold">
-                          {feature.icon || feature.name[0]}
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#4469e5] to-[#ee9807] flex items-center justify-center text-white font-bold text-lg">
+                          {feature.name[0]?.toUpperCase()}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">

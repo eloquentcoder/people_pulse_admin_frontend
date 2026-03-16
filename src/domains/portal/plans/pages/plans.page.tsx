@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { 
-  DollarSign, 
-  Search, 
+import {
+  Banknote,
+  Search,
   Filter, 
   Plus, 
   Eye, 
@@ -189,7 +189,7 @@ const PlansPage = () => {
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Plans</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{statsData.data.total_plans}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-[#4469e5]" />
+                <Banknote className="w-8 h-8 text-[#4469e5]" />
               </div>
             </CardContent>
           </Card>
@@ -386,7 +386,7 @@ const PlansPage = () => {
                   <tr>
                     <td colSpan={7} className="py-12 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <DollarSign className="w-12 h-12 text-gray-400" />
+                        <Banknote className="w-12 h-12 text-gray-400" />
                         <div>
                           <h3 className="text-lg font-medium text-gray-900 dark:text-white">No plans found</h3>
                           <p className="text-gray-500 dark:text-gray-400 mt-1">

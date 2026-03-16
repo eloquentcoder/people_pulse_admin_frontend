@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useGetFeaturesQuery } from '@/domains/portal/features/apis/features.api';
 import { Label } from '@/common/components/ui/label';
 import { Input } from '@/common/components/ui/input';
-import { Badge } from '@/common/components/ui/badge';
 import { Checkbox } from '@/common/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui/card';
-import { Search, Check } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { Feature } from '@/domains/portal/features/types';
 
 interface FeatureSelectorProps {
@@ -17,7 +16,13 @@ export function FeatureSelector({ selectedFeatureIds, onSelectionChange }: Featu
   const [searchTerm, setSearchTerm] = useState('');
   const { data: featuresData, isLoading } = useGetFeaturesQuery({ is_active: true });
 
-  const features = featuresData?.data || [];
+  // Handle paginated response: data.data contains the array
+  const responseData = featuresData?.data;
+  const features = Array.isArray(responseData)
+    ? responseData
+    : Array.isArray(responseData?.data)
+      ? responseData.data
+      : [];
   
   // Group features by category
   const groupedFeatures = features.reduce((acc, feature) => {
@@ -118,10 +123,9 @@ export function FeatureSelector({ selectedFeatureIds, onSelectionChange }: Featu
                   {categoryFeatures.map((feature) => {
                     const isSelected = selectedFeatureIds.includes(feature.id);
                     return (
-                      <div
+                      <label
                         key={feature.id}
                         className="flex items-start gap-3 p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                        onClick={() => handleFeatureToggle(feature.id)}
                       >
                         <Checkbox
                           checked={isSelected}
@@ -131,17 +135,12 @@ export function FeatureSelector({ selectedFeatureIds, onSelectionChange }: Featu
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">{feature.name}</span>
-                            {feature.icon && (
-                              <Badge variant="outline" className="text-xs">
-                                {feature.icon}
-                              </Badge>
-                            )}
                           </div>
                           {feature.description && (
                             <p className="text-xs text-gray-500 mt-1">{feature.description}</p>
                           )}
                         </div>
-                      </div>
+                      </label>
                     );
                   })}
                 </CardContent>

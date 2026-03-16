@@ -27,11 +27,15 @@ export const plansApi = createApi({
     baseUrl: `${API_URL}/plans`,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth?.token;
-      
+
+      // Always set Accept header to ensure Laravel returns JSON
+      headers.set('Accept', 'application/json');
+      headers.set('Content-Type', 'application/json');
+
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-      
+
       return headers;
     },
   }),

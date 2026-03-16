@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { 
-  CreditCard, 
-  Search, 
-  Filter, 
-  Plus, 
-  Eye, 
-  Edit, 
+import {
+  CreditCard,
+  Search,
+  Filter,
+  Plus,
+  Eye,
+  Edit,
   MoreVertical,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Clock,
-  DollarSign,
+  Banknote,
   Calendar,
   Building2,
   Users,
@@ -37,6 +37,16 @@ import {
 import type {  SubscriptionFilters } from '../models/subscription.model';
 import { toast } from 'sonner';
 import type { Subscription } from '@/common/models/subscription.model';
+
+// Format amount in Naira
+const formatNaira = (amount: number) => {
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
 
 const SubscriptionManagementPage = () => {
   const [filters, setFilters] = useState<SubscriptionFilters>({
@@ -221,9 +231,9 @@ const SubscriptionManagementPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenue</p>
-                  <p className="text-2xl font-bold text-blue-600">${statsData.data.total_revenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-blue-600">{formatNaira(statsData.data.total_revenue)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-500" />
+                <Banknote className="w-8 h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -406,9 +416,9 @@ const SubscriptionManagementPage = () => {
                     </td>
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-gray-400" />
+                        <Banknote className="w-4 h-4 text-gray-400" />
                         <span className="font-semibold text-gray-900 dark:text-white">
-                          ${subscription.amount.toLocaleString()}
+                          {formatNaira(subscription.amount)}
                         </span>
                       </div>
                     </td>

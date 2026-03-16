@@ -3,7 +3,7 @@ import {
   Users,
   Building2,
   CreditCard,
-  DollarSign,
+  Banknote,
   TrendingUp,
   TrendingDown,
   Activity,
@@ -95,9 +95,9 @@ export const AnalyticsPage = () => {
   const features = featuresResponse?.data
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount)
@@ -146,7 +146,7 @@ export const AnalyticsPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <Banknote className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {overviewLoading ? (
@@ -227,7 +227,7 @@ export const AnalyticsPage = () => {
       <Tabs defaultValue="revenue" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
           <TabsTrigger value="revenue" className="gap-2">
-            <DollarSign className="h-4 w-4" />
+            <Banknote className="h-4 w-4" />
             Revenue
           </TabsTrigger>
           <TabsTrigger value="users" className="gap-2">

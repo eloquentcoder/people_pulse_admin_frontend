@@ -3,7 +3,7 @@ import {
     Users, 
     CreditCard, 
     TrendingUp, 
-    DollarSign, 
+    Banknote,
     Activity,
     ArrowUp,
     ArrowDown,
@@ -193,16 +193,16 @@ export const DashboardPage = () => {
     const financialStats: StatCard[] = overview ? [
         {
             title: 'Total Revenue',
-            value: `$${(overview.financial_metrics.total_revenue / 1000).toFixed(1)}k`,
+            value: `₦${(overview.financial_metrics.total_revenue / 1000).toFixed(1)}k`,
             change: `+${overview.financial_metrics.revenue_growth}%`,
             trend: overview.financial_metrics.revenue_growth >= 0 ? 'up' : 'down',
-            icon: DollarSign,
+            icon: Banknote,
             color: 'from-green-500 to-green-600',
             description: 'All-time revenue'
         },
         {
             title: 'MRR',
-            value: `$${(overview.financial_metrics.mrr / 1000).toFixed(1)}k`,
+            value: `₦${(overview.financial_metrics.mrr / 1000).toFixed(1)}k`,
             change: '+8.3%',
             trend: 'up',
             icon: TrendingUp,

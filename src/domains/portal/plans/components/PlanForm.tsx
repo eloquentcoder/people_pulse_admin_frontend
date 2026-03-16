@@ -13,13 +13,10 @@ import { Label } from '@/common/components/ui/label';
 import { Textarea } from '@/common/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/common/components/ui/select';
 import { Switch } from '@/common/components/ui/switch';
-import { Badge } from '@/common/components/ui/badge';
 import { Plan, PlanFormData } from '../types';
 import { planValidationSchema } from '../validations';
 import { FeatureSelector } from './FeatureSelector';
 import { useGetPlansQuery } from '../apis/plans.api';
-import { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
 
 interface PlanFormProps {
   open: boolean;
@@ -45,7 +42,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
       max_employees: plan?.max_employees || 10,
       max_storage_gb: plan?.max_storage_gb || 10,
       features: plan?.features || [],
-      feature_ids: plan?.feature_ids || plan?.features_data?.map(f => f.id) || [],
+      feature_ids: plan?.feature_ids || plan?.feature_relations?.map(f => f.id) || plan?.features_data?.map(f => f.id) || [],
       is_active: plan?.is_active ?? true,
       is_popular: plan?.is_popular || false,
       trial_days: plan?.trial_days || 14,
@@ -60,11 +57,10 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
     enableReinitialize: true,
   });
 
-  useEffect(() => {
-    if (plan?.features_data) {
-      formik.setFieldValue('feature_ids', plan.features_data.map(f => f.id));
-    }
-  }, [plan]);
+  // Note: The useEffect for setting feature_ids was removed because:
+  // 1. enableReinitialize: true already handles form reinitialization when plan changes
+  // 2. initialValues already correctly computes feature_ids from plan?.features_data
+  // 3. The redundant setFieldValue was causing an infinite update loop
 
   const generateSlug = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -139,7 +135,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price</Label>
+              <Label htmlFor="price" className="whitespace-nowrap">Price</Label>
               <Input
                 id="price"
                 name="price"
@@ -156,7 +152,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
+              <Label htmlFor="currency" className="whitespace-nowrap">Currency</Label>
               <Select
                 value={formik.values.currency || 'USD'}
                 onValueChange={(value) => formik.setFieldValue('currency', value)}
@@ -175,7 +171,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="billing_cycle">Billing Cycle</Label>
+              <Label htmlFor="billing_cycle" className="whitespace-nowrap">Billing Cycle</Label>
               <Select
                 value={formik.values.billing_cycle}
                 onValueChange={(value) => formik.setFieldValue('billing_cycle', value)}
@@ -196,9 +192,9 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="max_employees">Max Employees</Label>
+              <Label htmlFor="max_employees" className="whitespace-nowrap">Max Employees</Label>
               <Input
                 id="max_employees"
                 name="max_employees"
@@ -213,7 +209,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="max_storage_gb">Storage (GB)</Label>
+              <Label htmlFor="max_storage_gb" className="whitespace-nowrap">Storage (GB)</Label>
               <Input
                 id="max_storage_gb"
                 name="max_storage_gb"
@@ -228,7 +224,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="trial_days">Trial Days</Label>
+              <Label htmlFor="trial_days" className="whitespace-nowrap">Trial Days</Label>
               <Input
                 id="trial_days"
                 name="trial_days"
@@ -243,7 +239,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="display_order">Display Order</Label>
+              <Label htmlFor="display_order" className="whitespace-nowrap">Display Order</Label>
               <Input
                 id="display_order"
                 name="display_order"

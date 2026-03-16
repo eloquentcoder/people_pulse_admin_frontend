@@ -175,10 +175,10 @@ const HRTemplatesPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            HR Templates
+            Email Templates
           </h1>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
-            Manage HR document templates and categories
+            Manage HR email templates and categories
           </p>
         </div>
         <div className="flex gap-2">

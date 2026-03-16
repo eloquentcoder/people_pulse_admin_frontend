@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Save, Loader2, Globe, Clock, DollarSign, Mail, Phone } from 'lucide-react';
+import { Save, Loader2, Globe, Clock, Banknote, Mail, Phone } from 'lucide-react';
 import { Button } from '@/common/components/ui/button';
 import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
@@ -40,7 +40,7 @@ const timezones = [
   { value: 'Australia/Sydney', label: 'Australia/Sydney (AEST)' },
 ];
 
-const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'INR', 'AED', 'NGN', 'KES', 'GHS', 'ZAR'];
+const currencies = ['NGN', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'INR', 'AED', 'KES', 'GHS', 'ZAR'];
 
 const dateFormats = [
   { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
@@ -69,7 +69,7 @@ export const GeneralSettingsSection = () => {
       platform_name: '',
       platform_url: '',
       timezone: 'UTC',
-      default_currency: 'USD',
+      default_currency: 'NGN',
       date_format: 'MM/DD/YYYY',
       time_format: '12h' as '12h' | '24h',
       language: 'en',
@@ -96,7 +96,7 @@ export const GeneralSettingsSection = () => {
         platform_name: settingsData.data.platform_name || '',
         platform_url: settingsData.data.platform_url || '',
         timezone: settingsData.data.timezone || 'UTC',
-        default_currency: settingsData.data.default_currency || 'USD',
+        default_currency: settingsData.data.default_currency || 'NGN',
         date_format: settingsData.data.date_format || 'MM/DD/YYYY',
         time_format: settingsData.data.time_format || '12h',
         language: settingsData.data.language || 'en',

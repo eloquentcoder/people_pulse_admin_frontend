@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   Users,
   Calendar,
-  DollarSign,
+  Banknote,
   Globe,
   Phone,
   Mail,
@@ -271,7 +271,7 @@ const OrganizationPage = () => {
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">With Subscription</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.organizations_with_subscription}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-500" />
+                <Banknote className="w-8 h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>

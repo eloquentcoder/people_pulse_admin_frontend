@@ -17,7 +17,7 @@ import {
   Trash2,
   Star,
   Globe,
-  DollarSign,
+  Banknote,
   Shield,
   Settings,
   Zap,
@@ -166,7 +166,7 @@ const PaymentGatewaysPage = () => {
       parts.push(`${percentage}%`);
     }
     if (fixed > 0) {
-      parts.push(`+$${fixed.toFixed(2)}`);
+      parts.push(`+₦${fixed.toFixed(2)}`);
     }
     return parts.length > 0 ? parts.join(' ') : 'Free';
   };
@@ -256,7 +256,7 @@ const PaymentGatewaysPage = () => {
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Transactions</p>
                   <p className="text-2xl font-bold text-purple-600">{statsData.data.total_transactions}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-500" />
+                <Banknote className="w-8 h-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
@@ -461,7 +461,7 @@ const PaymentGatewaysPage = () => {
                         )}
                         {gateway.supports_payouts && (
                           <Badge variant="secondary" className="text-xs">
-                            <DollarSign className="w-3 h-3 mr-1" />
+                            <Banknote className="w-3 h-3 mr-1" />
                             Payouts
                           </Badge>
                         )}

@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/common/components/ui/card';
 import { Separator } from '@/common/components/ui/separator';
 import { Plan } from '../types';
 import {
-  DollarSign,
+  Banknote,
   Users,
   HardDrive,
   Calendar,
@@ -30,15 +30,28 @@ interface PlanDetailsProps {
 export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
   if (!plan) return null;
 
-  const formatPrice = (price: number, cycle: string) => {
+  const formatPrice = (price: number, cycle: string, currency?: string) => {
     const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: currency || 'NGN'
     }).format(price);
 
-    const suffix = cycle === 'monthly' ? '/month' : cycle === 'yearly' ? '/year' : '';
+    const suffix = cycle === 'monthly' ? '/month' : cycle === 'yearly' ? '/year' : cycle === 'quarterly' ? '/quarter' : '';
     return `${formatted}${suffix}`;
   };
+
+  // Get features from the Feature model relationship
+  // The backend returns feature_relations (snake_case) from the eager loaded relationship
+  // or features_data from the accessor. Legacy 'features' column contains string descriptions.
+  const featureRelations = plan.feature_relations;
+  const featuresData = plan.features_data;
+
+  // Prioritize relationship data (Feature models) over legacy string array
+  const planFeatures = (featureRelations && featureRelations.length > 0)
+    ? featureRelations
+    : (featuresData && featuresData.length > 0)
+      ? featuresData
+      : [];
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -79,15 +92,15 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
           {/* Pricing Information */}
           <Card>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid gap-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <Banknote className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Price</p>
                     <p className="text-lg font-semibold">
-                      {formatPrice(plan.price, plan.billing_cycle)}
+                      {formatPrice(plan.price, plan.billing_cycle, plan.currency)}
                     </p>
                   </div>
                 </div>
@@ -151,15 +164,36 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Package className="h-5 w-5" />
                 Included Features
+                {planFeatures.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {planFeatures.length} features
+                  </Badge>
+                )}
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-                    <span className="text-sm">{feature}</span>
-                  </div>
-                ))}
-              </div>
+              {planFeatures.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No features assigned to this plan.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {planFeatures.map((feature, index) => {
+                    // Handle both string features (legacy) and feature objects (new)
+                    const featureName = typeof feature === 'string' ? feature : feature.name;
+                    const featureDescription = typeof feature === 'object' ? feature.description : null;
+                    const featureKey = typeof feature === 'string' ? index : feature.id;
+
+                    return (
+                      <div key={featureKey} className="flex items-start gap-2 p-2 rounded-lg bg-muted/50">
+                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <span className="text-sm font-medium">{featureName}</span>
+                          {featureDescription && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{featureDescription}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 

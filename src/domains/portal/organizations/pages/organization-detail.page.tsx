@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   Users,
   Calendar,
-  DollarSign,
+  Banknote,
   Globe,
   Phone,
   Mail,
@@ -364,7 +364,7 @@ const OrganizationDetailPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5" />
+                    <Banknote className="w-5 h-5" />
                     Subscription
                   </CardTitle>
                 </CardHeader>
@@ -384,13 +384,13 @@ const OrganizationDetailPage = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Amount</span>
                         <span className="font-semibold text-gray-900 dark:text-white">
-                          ${organization.active_subscription.amount || 0}/month
+                          ₦{(organization.active_subscription.amount || 0).toLocaleString()}/month
                         </span>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-4">
-                      <DollarSign className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <Banknote className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-500 dark:text-gray-400">No subscription</p>
                     </div>
                   )}

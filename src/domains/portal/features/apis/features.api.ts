@@ -13,14 +13,18 @@ export interface FeatureFilters {
 export const featuresApi = createApi({
   reducerPath: 'featuresApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_URL}/platform/features`,
+    baseUrl: `${API_URL}/features`,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth?.token;
-      
+
+      // Always set Accept header to ensure Laravel returns JSON
+      headers.set('Accept', 'application/json');
+      headers.set('Content-Type', 'application/json');
+
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-      
+
       return headers;
     },
   }),

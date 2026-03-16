@@ -26,7 +26,7 @@ import {
   Eye,
   Plus,
   Search,
-  DollarSign,
+  Banknote,
   Users,
   HardDrive,
   Star
@@ -83,9 +83,11 @@ export function PlansTable({
   };
 
   const formatPrice = (price: number, cycle: string) => {
-    const formatted = new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(price);
 
     const suffix = cycle === 'monthly' ? '/mo' : cycle === 'yearly' ? '/yr' : '';
@@ -192,7 +194,7 @@ export function PlansTable({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <Banknote className="h-4 w-4 text-muted-foreground" />
                         <span className="font-semibold">
                           {formatPrice(plan.price, plan.billing_cycle)}
                         </span>

@@ -11,7 +11,7 @@ import { Separator } from '@/common/components/ui/separator';
 import { Button } from '@/common/components/ui/button';
 import { Subscription } from '../types';
 import {
-  DollarSign,
+  Banknote,
   Users,
   HardDrive,
   Calendar,
@@ -50,9 +50,11 @@ export function SubscriptionDetails({
   if (!subscription) return null;
 
   const formatAmount = (amount: number, cycle: string) => {
-    const formatted = new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
 
     const suffix = cycle === 'monthly' ? '/month' : cycle === 'yearly' ? '/year' : '';
@@ -180,7 +182,7 @@ export function SubscriptionDetails({
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <Banknote className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Amount</p>
@@ -451,9 +453,11 @@ export function SubscriptionDetails({
                         }`} />
                         <div>
                           <p className="font-medium">
-                            {new Intl.NumberFormat('en-US', {
+                            {new Intl.NumberFormat('en-NG', {
                               style: 'currency',
-                              currency: 'USD'
+                              currency: 'NGN',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
                             }).format(transaction.amount)}
                           </p>
                           <p className="text-sm text-muted-foreground">

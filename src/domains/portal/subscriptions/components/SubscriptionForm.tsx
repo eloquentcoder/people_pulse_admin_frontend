@@ -16,7 +16,7 @@ import { Badge } from '@/common/components/ui/badge';
 import { Subscription, SubscriptionFormData, Organization, Plan } from '../types';
 import { subscriptionValidationSchema } from '../validations';
 import { fetchPlans } from '@/domains/portal/plans/apis';
-import { X, Plus, Calendar, DollarSign, Building2, Package } from 'lucide-react';
+import { X, Plus, Calendar, Banknote, Building2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SubscriptionFormProps {
@@ -250,7 +250,7 @@ export function SubscriptionForm({
                             <Badge variant="outline">{plan.billing_cycle}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            ${plan.price}/{plan.billing_cycle === 'monthly' ? 'mo' : plan.billing_cycle === 'yearly' ? 'yr' : 'once'}
+                            ₦{plan.price.toLocaleString()}/{plan.billing_cycle === 'monthly' ? 'mo' : plan.billing_cycle === 'yearly' ? 'yr' : 'once'}
                           </div>
                         </div>
                       </div>
@@ -369,9 +369,9 @@ export function SubscriptionForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount ($)</Label>
+            <Label htmlFor="amount">Amount (₦)</Label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="amount"
                 name="amount"
