@@ -19,6 +19,7 @@ import HRTemplatesPage from "@/domains/portal/hr-templates/pages/hr-templates.pa
 import FeaturesPage from "@/domains/portal/features/pages/features.page";
 import ProfilePage from "@/domains/portal/profile/pages/profile.page";
 import AnnouncementsPage from "@/domains/portal/announcements/pages/announcements.page";
+import LandingContentPage from "@/domains/portal/landing-content/pages/landing-content.page";
 
 export const routes = createBrowserRouter([
     {
@@ -110,6 +111,10 @@ export const routes = createBrowserRouter([
             {
                 path: 'announcements',
                 element: <AnnouncementsPage />,
+            },
+            {
+                path: 'landing-content',
+                element: <LandingContentPage />,
             },
         ],
     }

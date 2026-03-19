@@ -14,7 +14,8 @@ import {
     Shield,
     ClipboardList,
     Tag,
-    Megaphone
+    Megaphone,
+    Globe
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
@@ -90,6 +91,11 @@ const navItemsConfig: NavItem[] = [
         title: 'Announcements',
         href: '/announcements',
         icon: Megaphone,
+    },
+    {
+        title: 'Landing Content',
+        href: '/landing-content',
+        icon: Globe,
     },
     {
         title: 'Notifications',
