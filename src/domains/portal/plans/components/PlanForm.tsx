@@ -32,6 +32,17 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
   const { data: plansData } = useGetPlansQuery({});
   const availablePlans = plansData?.data?.data || [];
 
+  // Helper to extract feature IDs from plan - handles both camelCase and snake_case from Laravel
+  const getFeatureIds = (plan: Plan | null | undefined): string[] => {
+    if (!plan) return [];
+    if (plan.feature_ids?.length) return plan.feature_ids;
+    // Handle both camelCase (Laravel default) and snake_case from API
+    const featureRelations = plan.featureRelations || plan.feature_relations;
+    if (featureRelations?.length) return featureRelations.map(f => f.id);
+    if (plan.features_data?.length) return plan.features_data.map(f => f.id);
+    return [];
+  };
+
   const formik = useFormik<PlanFormData>({
     initialValues: {
       name: plan?.name || '',
@@ -42,7 +53,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
       max_employees: plan?.max_employees || 10,
       max_storage_gb: plan?.max_storage_gb || 10,
       features: plan?.features || [],
-      feature_ids: plan?.feature_ids || plan?.feature_relations?.map(f => f.id) || plan?.features_data?.map(f => f.id) || [],
+      feature_ids: getFeatureIds(plan),
       is_active: plan?.is_active ?? true,
       is_popular: plan?.is_popular || false,
       trial_days: plan?.trial_days || 14,

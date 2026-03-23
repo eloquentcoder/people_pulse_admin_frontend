@@ -19,6 +19,7 @@ export interface Plan {
   feature_ids?: string[]; // Feature IDs for form submission
   features_data?: PlanFeature[]; // From accessor - feature objects
   feature_relations?: PlanFeature[]; // From eager loaded relationship (snake_case)
+  featureRelations?: PlanFeature[]; // From eager loaded relationship (camelCase - Laravel default)
   is_active: boolean;
   is_popular: boolean;
   trial_days: number;
