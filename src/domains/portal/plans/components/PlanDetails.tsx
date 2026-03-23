@@ -41,9 +41,9 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
   };
 
   // Get features from the Feature model relationship
-  // The backend returns feature_relations (snake_case) from the eager loaded relationship
+  // The backend returns featureRelations (camelCase) or feature_relations (snake_case) from the eager loaded relationship
   // or features_data from the accessor. Legacy 'features' column contains string descriptions.
-  const featureRelations = plan.feature_relations;
+  const featureRelations = plan.featureRelations || plan.feature_relations;
   const featuresData = plan.features_data;
 
   // Prioritize relationship data (Feature models) over legacy string array
@@ -65,7 +65,7 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
