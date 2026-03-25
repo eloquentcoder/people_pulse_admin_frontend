@@ -17,7 +17,8 @@ import {
   UserPlus,
   TrendingUp,
   Clock,
-  Briefcase
+  Briefcase,
+  CreditCard
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui/card';
 import { Badge } from '@/common/components/ui/badge';
@@ -36,6 +37,7 @@ import { OrganizationUsersTab } from '../components/organization-users-tab';
 import { OrganizationDepartmentsTab } from '../components/organization-departments-tab';
 import { OrganizationBranchesTab } from '../components/organization-branches-tab';
 import { OrganizationDesignationsTab } from '../components/organization-designations-tab';
+import { OrganizationSubscriptionTab } from '../components/organization-subscription-tab';
 
 const OrganizationDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -212,6 +214,10 @@ const OrganizationDetailPage = () => {
           <TabsTrigger value="designations" className="flex items-center gap-2">
             <Briefcase className="w-4 h-4" />
             Designations ({organization.positions_count || organization.positions?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4" />
+            Subscription
           </TabsTrigger>
         </TabsList>
 
@@ -497,6 +503,14 @@ const OrganizationDetailPage = () => {
               <OrganizationDesignationsTab positions={organization.positions || []} />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Subscription Tab */}
+        <TabsContent value="subscription" className="mt-6">
+          <OrganizationSubscriptionTab
+            organization={organization}
+            onSubscriptionChange={refetch}
+          />
         </TabsContent>
       </Tabs>
 

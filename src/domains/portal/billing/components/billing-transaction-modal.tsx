@@ -12,8 +12,8 @@ interface BillingTransactionModalProps {
 export const BillingTransactionModal = ({ open, onClose, transaction }: BillingTransactionModalProps) => {
   if (!open) return null
 
-  const formatCurrency = (amount: number, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
+  const formatCurrency = (amount: number, currency = 'NGN') => {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency,
     }).format(amount)

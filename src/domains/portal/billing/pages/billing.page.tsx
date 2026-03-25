@@ -94,8 +94,8 @@ const BillingPage = () => {
   const pageItems = transactions
   const isLoading = statsLoading || transactionsLoading
 
-  const formatCurrency = (amount: number, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
+  const formatCurrency = (amount: number, currency = 'NGN') => {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency,
     }).format(amount)
