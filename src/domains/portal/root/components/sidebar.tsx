@@ -15,7 +15,8 @@ import {
     ClipboardList,
     Tag,
     Megaphone,
-    Globe
+    Globe,
+    FileCheck
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
@@ -40,6 +41,11 @@ const navItemsConfig: NavItem[] = [
         title: 'Organizations',
         href: '/organizations',
         icon: Building2,
+    },
+    {
+        title: 'Compliance Review',
+        href: '/compliance',
+        icon: FileCheck,
     },
     {
         title: 'Subscriptions',

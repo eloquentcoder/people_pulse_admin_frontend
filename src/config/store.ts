@@ -19,6 +19,7 @@ import { rolesApi } from "@/domains/portal/roles-permissions/apis/roles.api";
 import { profileApi } from "@/domains/portal/profile/apis/profile.api";
 import { announcementsApi } from "@/domains/portal/announcements/apis/announcements.api";
 import { landingContentApi } from "@/domains/portal/landing-content/apis/landing-content.api";
+import { complianceApi } from "@/domains/portal/compliance/apis/compliance.api";
 
 export const store = configureStore({
     reducer: {
@@ -41,7 +42,8 @@ export const store = configureStore({
       [rolesApi.reducerPath]: rolesApi.reducer,
       [profileApi.reducerPath]: profileApi.reducer,
       [announcementsApi.reducerPath]: announcementsApi.reducer,
-      [landingContentApi.reducerPath]: landingContentApi.reducer
+      [landingContentApi.reducerPath]: landingContentApi.reducer,
+      [complianceApi.reducerPath]: complianceApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
@@ -61,7 +63,8 @@ export const store = configureStore({
         .concat(rolesApi.middleware)
         .concat(profileApi.middleware)
         .concat(announcementsApi.middleware)
-        .concat(landingContentApi.middleware),
+        .concat(landingContentApi.middleware)
+        .concat(complianceApi.middleware),
   });
 
 // Enable refetchOnFocus and refetchOnReconnect behaviors

@@ -20,6 +20,8 @@ import FeaturesPage from "@/domains/portal/features/pages/features.page";
 import ProfilePage from "@/domains/portal/profile/pages/profile.page";
 import AnnouncementsPage from "@/domains/portal/announcements/pages/announcements.page";
 import LandingContentPage from "@/domains/portal/landing-content/pages/landing-content.page";
+import ComplianceReviewPage from "@/domains/portal/compliance/pages/compliance-review.page";
+import OrganizationComplianceDetailPage from "@/domains/portal/compliance/pages/organization-compliance-detail.page";
 
 export const routes = createBrowserRouter([
     {
@@ -115,6 +117,14 @@ export const routes = createBrowserRouter([
             {
                 path: 'landing-content',
                 element: <LandingContentPage />,
+            },
+            {
+                path: 'compliance',
+                element: <ComplianceReviewPage />,
+            },
+            {
+                path: 'compliance/organizations/:id',
+                element: <OrganizationComplianceDetailPage />,
             },
         ],
     }
