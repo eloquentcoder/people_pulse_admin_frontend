@@ -22,6 +22,7 @@ import AnnouncementsPage from "@/domains/portal/announcements/pages/announcement
 import LandingContentPage from "@/domains/portal/landing-content/pages/landing-content.page";
 import ComplianceReviewPage from "@/domains/portal/compliance/pages/compliance-review.page";
 import OrganizationComplianceDetailPage from "@/domains/portal/compliance/pages/organization-compliance-detail.page";
+import DemoRequestsPage from "@/domains/portal/demo-requests/pages/demo-requests.page";
 
 export const routes = createBrowserRouter([
     {
@@ -125,6 +126,10 @@ export const routes = createBrowserRouter([
             {
                 path: 'compliance/organizations/:id',
                 element: <OrganizationComplianceDetailPage />,
+            },
+            {
+                path: 'demo-requests',
+                element: <DemoRequestsPage />,
             },
         ],
     }

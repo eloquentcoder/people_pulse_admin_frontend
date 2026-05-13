@@ -16,7 +16,8 @@ import {
     Tag,
     Megaphone,
     Globe,
-    FileCheck
+    FileCheck,
+    CalendarDays
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
@@ -92,6 +93,11 @@ const navItemsConfig: NavItem[] = [
         href: '/support',
         icon: HelpCircle,
         badgeKey: 'openTickets',
+    },
+    {
+        title: 'Demo Requests',
+        href: '/demo-requests',
+        icon: CalendarDays,
     },
     {
         title: 'Announcements',
