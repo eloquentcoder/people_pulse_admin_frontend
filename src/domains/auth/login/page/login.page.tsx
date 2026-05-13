@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff, Lock, Mail, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/common/components/ui/button';
 import { Input } from '@/common/components/ui/input';
@@ -14,8 +14,20 @@ import logo from "@/assets/logo-black.png"
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [inactivityMessage, setInactivityMessage] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const [login, { isLoading }] = useLoginMutation();
+
+    // Check for inactivity logout message
+    useEffect(() => {
+        const state = location.state as { message?: string } | null;
+        if (state?.message) {
+            setInactivityMessage(state.message);
+            // Clear the state so message doesn't persist on refresh
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location, navigate]);
 
     const formik = useFormik<LoginFormValues>({
         initialValues: initialLoginValues,
@@ -77,6 +89,16 @@ const LoginPage = () => {
 
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Inactivity Logout Message */}
+                        {inactivityMessage && (
+                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-400/50 dark:border-amber-600/50 rounded-lg p-3 flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-amber-800 dark:text-amber-200">
+                                    {inactivityMessage}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Email Field */}
                         <div className="space-y-2">
                             <Label htmlFor="email">Email Address</Label>

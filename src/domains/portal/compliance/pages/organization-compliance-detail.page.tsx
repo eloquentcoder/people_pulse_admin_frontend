@@ -110,7 +110,7 @@ const OrganizationComplianceDetailPage = () => {
 
   const handleDownloadDocument = (documentId: number) => {
     // Open download URL in new tab
-    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
     window.open(`${baseUrl}/compliance-review/documents/${documentId}/download`, '_blank');
   };
 
