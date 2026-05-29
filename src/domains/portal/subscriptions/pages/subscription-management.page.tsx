@@ -6,37 +6,52 @@ import {
   Plus,
   Eye,
   Edit,
-  MoreVertical,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Clock,
   Banknote,
   Calendar,
-  Building2,
-  Users,
   RefreshCw,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  CalendarClock
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/common/components/ui/card';
 import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
 import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
-import { 
+import {
   useGetSubscriptionsQuery,
   useGetSubscriptionStatsQuery,
   useCancelSubscriptionMutation,
   useRenewSubscriptionMutation,
   useDeleteSubscriptionMutation,
+  useUpdateSubscriptionMutation,
+  useCreateSubscriptionMutation,
 } from '../apis/subscription.api';
 import type {  SubscriptionFilters } from '../models/subscription.model';
 import { toast } from 'sonner';
-import type { Subscription } from '@/common/models/subscription.model';
+import type { Subscription, SubscriptionFormData } from '../types';
+import { SubscriptionDetails } from '../components/SubscriptionDetails';
+import { SubscriptionForm } from '../components/SubscriptionForm';
+import { ExtendTrialDialog } from '../components/ExtendTrialDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/common/components/ui/alert-dialog';
+import { toCreatePayload, toUpdatePayload } from '../utils/mapFormData';
+import { useGetOrganizationsQuery } from '@/domains/portal/organizations/apis/organization.api';
 
 // Format amount in Naira
 const formatNaira = (amount: number) => {
@@ -65,6 +80,8 @@ const SubscriptionManagementPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showExtendTrialModal, setShowExtendTrialModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'disable' | 'delete'; id: number } | null>(null);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
 
   // API queries
@@ -73,6 +90,10 @@ const SubscriptionManagementPage = () => {
   const [cancelSubscription] = useCancelSubscriptionMutation();
   const [renewSubscription] = useRenewSubscriptionMutation();
   const [deleteSubscription] = useDeleteSubscriptionMutation();
+  const [updateSubscription, { isLoading: isUpdating }] = useUpdateSubscriptionMutation();
+  const [createSubscription, { isLoading: isCreating }] = useCreateSubscriptionMutation();
+  const { data: organizationsData } = useGetOrganizationsQuery({});
+  const organizations = organizationsData?.data?.data ?? [];
 
   const handleFilterChange = (key: keyof SubscriptionFilters, value: string | number | undefined) => {
     setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
@@ -88,14 +109,6 @@ const SubscriptionManagementPage = () => {
 
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
-  };
-
-  const handleSort = (sortBy: string) => {
-    setFilters(prev => ({
-      ...prev,
-      sort_by: sortBy,
-      sort_order: prev.sort_by === sortBy && prev.sort_order === 'asc' ? 'desc' : 'asc'
-    }));
   };
 
   const handleCancel = async (id: number) => {
@@ -125,6 +138,58 @@ const SubscriptionManagementPage = () => {
     } catch (error) {
       console.error('Failed to delete subscription:', error);
       toast.error('Failed to delete subscription');
+    }
+  };
+
+  const closeModals = () => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setShowDetailsModal(false);
+    setShowExtendTrialModal(false);
+    setSelectedSubscription(null);
+  };
+
+  const runConfirm = async () => {
+    if (!confirmAction) return;
+    if (confirmAction.type === 'disable') {
+      await handleCancel(confirmAction.id);
+    } else {
+      await handleDelete(confirmAction.id);
+    }
+    setConfirmAction(null);
+  };
+
+  const handleExtendTrial = async (newTrialEndsAt: string) => {
+    if (!selectedSubscription) return;
+    try {
+      await updateSubscription({
+        id: selectedSubscription.id,
+        data: { trial_ends_at: newTrialEndsAt },
+      }).unwrap();
+      toast.success('Trial extended successfully');
+      closeModals();
+    } catch (error) {
+      console.error('Failed to extend trial:', error);
+      toast.error('Failed to extend trial');
+    }
+  };
+
+  const handleSave = async (formData: SubscriptionFormData) => {
+    try {
+      if (selectedSubscription) {
+        await updateSubscription({
+          id: selectedSubscription.id,
+          data: toUpdatePayload(formData),
+        }).unwrap();
+        toast.success('Subscription updated successfully');
+      } else {
+        await createSubscription(toCreatePayload(formData)).unwrap();
+        toast.success('Subscription created successfully');
+      }
+      closeModals();
+    } catch (error) {
+      console.error('Failed to save subscription:', error);
+      toast.error('Failed to save subscription');
     }
   };
 
@@ -433,9 +498,10 @@ const SubscriptionManagementPage = () => {
                     </td>
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-1">
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
+                          aria-label="View subscription"
                           onClick={() => {
                             setSelectedSubscription(subscription);
                             setShowDetailsModal(true);
@@ -444,9 +510,10 @@ const SubscriptionManagementPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
+                          aria-label="Edit subscription"
                           onClick={() => {
                             setSelectedSubscription(subscription);
                             setShowEditModal(true);
@@ -455,11 +522,26 @@ const SubscriptionManagementPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        {subscription.status === 'trial' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Extend trial"
+                            onClick={() => {
+                              setSelectedSubscription(subscription);
+                              setShowExtendTrialModal(true);
+                            }}
+                            className="hover:bg-orange-50 hover:text-orange-600"
+                          >
+                            <CalendarClock className="w-4 h-4" />
+                          </Button>
+                        )}
                         {subscription.status === 'active' ? (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleCancel(subscription.id)}
+                            aria-label="Disable subscription"
+                            onClick={() => setConfirmAction({ type: 'disable', id: subscription.id })}
                             className="hover:bg-red-50 hover:text-red-600"
                           >
                             <XCircle className="w-4 h-4" />
@@ -468,16 +550,18 @@ const SubscriptionManagementPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            aria-label="Enable subscription"
                             onClick={() => handleRenew(subscription.id)}
                             className="hover:bg-green-50 hover:text-green-600"
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
                         ) : null}
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(subscription.id)}
+                          aria-label="Delete subscription"
+                          onClick={() => setConfirmAction({ type: 'delete', id: subscription.id })}
                           className="hover:bg-red-50 hover:text-red-600"
                         >
                           <XCircle className="w-4 h-4" />
@@ -592,6 +676,66 @@ const SubscriptionManagementPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* View details modal */}
+      <SubscriptionDetails
+        open={showDetailsModal}
+        onClose={closeModals}
+        subscription={selectedSubscription}
+        onEdit={(subscription) => {
+          setSelectedSubscription(subscription);
+          setShowDetailsModal(false);
+          setShowEditModal(true);
+        }}
+        onCancel={(subscription) => handleCancel(subscription.id)}
+        onRenew={(subscription) => handleRenew(subscription.id)}
+      />
+
+      {/* Create / edit modal */}
+      <SubscriptionForm
+        open={showAddModal || showEditModal}
+        onClose={closeModals}
+        onSubmit={handleSave}
+        subscription={showEditModal ? selectedSubscription : null}
+        loading={isUpdating || isCreating}
+        organizations={organizations}
+      />
+
+      {/* Extend trial modal */}
+      <ExtendTrialDialog
+        open={showExtendTrialModal}
+        onClose={closeModals}
+        subscription={selectedSubscription}
+        onConfirm={handleExtendTrial}
+        loading={isUpdating}
+      />
+
+      {/* Disable / delete confirmation */}
+      <AlertDialog
+        open={!!confirmAction}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction?.type === 'delete'
+                ? 'Delete subscription?'
+                : 'Disable subscription?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction?.type === 'delete'
+                ? 'This permanently removes the subscription. This action cannot be undone.'
+                : 'This cancels the subscription and revokes access. You can re-enable it later.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={runConfirm}>
+              {confirmAction?.type === 'delete' ? 'Delete' : 'Disable'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

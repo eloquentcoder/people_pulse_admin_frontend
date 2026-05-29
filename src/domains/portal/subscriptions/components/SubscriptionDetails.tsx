@@ -244,8 +244,8 @@ export function SubscriptionDetails({
                       <p className="font-medium">{subscription.organization.name}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Domain</p>
-                      <p className="font-medium">{subscription.organization.domain}</p>
+                      <p className="text-sm text-muted-foreground">Industry</p>
+                      <p className="font-medium">{subscription.organization.industry}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
@@ -281,7 +281,7 @@ export function SubscriptionDetails({
                             <p>
                               {subscription.organization.city}
                               {subscription.organization.state && `, ${subscription.organization.state}`}
-                              {subscription.organization.zip_code && ` ${subscription.organization.zip_code}`}
+                              {subscription.organization.postal_code && ` ${subscription.organization.postal_code}`}
                             </p>
                           )}
                           {subscription.organization.country && (
@@ -292,7 +292,7 @@ export function SubscriptionDetails({
                     )}
                     <div>
                       <p className="text-sm text-muted-foreground">Employee Count</p>
-                      <p className="font-medium">{subscription.organization.employee_count} employees</p>
+                      <p className="font-medium">{subscription.organization.employees_count} employees</p>
                     </div>
                   </div>
                 </div>

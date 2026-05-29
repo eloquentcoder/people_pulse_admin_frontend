@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/common/components/ui/badge';
 import { Subscription, SubscriptionFormData, Organization, Plan } from '../types';
 import { subscriptionValidationSchema } from '../validations';
+import { buildInitialFormValues, findPlanById } from '../utils/formValues';
 import { fetchPlans } from '@/domains/portal/plans/apis';
 import { X, Plus, Calendar, Banknote, Building2, Package } from 'lucide-react';
 import { toast } from 'sonner';
@@ -52,7 +53,7 @@ export function SubscriptionForm({
       setLoadingPlans(true);
       const plansData = await fetchPlans({ is_active: true });
       setPlans(plansData);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load plans');
     } finally {
       setLoadingPlans(false);
@@ -60,19 +61,7 @@ export function SubscriptionForm({
   };
 
   const formik = useFormik<SubscriptionFormData>({
-    initialValues: {
-      organization_id: subscription?.organization_id || '',
-      plan_id: subscription?.plan_id || '',
-      status: subscription?.status === 'trial' || subscription?.status === 'active'
-        ? subscription.status
-        : 'trial',
-      trial_ends_at: subscription?.trial_ends_at || null,
-      starts_at: subscription?.starts_at || new Date().toISOString().split('T')[0],
-      ends_at: subscription?.ends_at || null,
-      amount: subscription?.amount || 0,
-      billing_cycle: subscription?.billing_cycle || 'monthly',
-      features: subscription?.features || [],
-    },
+    initialValues: buildInitialFormValues(subscription),
     validationSchema: subscriptionValidationSchema,
     onSubmit: (values) => {
       onSubmit(values);
@@ -82,7 +71,7 @@ export function SubscriptionForm({
 
   const handlePlanChange = (planId: string) => {
     formik.setFieldValue('plan_id', planId);
-    const plan = plans.find(p => p.id === planId);
+    const plan = findPlanById(plans, planId);
     setSelectedPlan(plan || null);
 
     if (plan) {
@@ -198,14 +187,14 @@ export function SubscriptionForm({
                     {formik.values.organization_id && (
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4" />
-                        {organizations.find(org => org.id === formik.values.organization_id)?.name}
+                        {organizations.find(org => String(org.id) === formik.values.organization_id)?.name}
                       </div>
                     )}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {filteredOrganizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>
+                    <SelectItem key={org.id} value={String(org.id)}>
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4" />
                         <div>
@@ -241,7 +230,7 @@ export function SubscriptionForm({
                 </SelectTrigger>
                 <SelectContent>
                   {plans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.id}>
+                    <SelectItem key={plan.id} value={String(plan.id)}>
                       <div className="flex items-center gap-2">
                         <Package className="h-4 w-4" />
                         <div>
