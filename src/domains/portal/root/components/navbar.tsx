@@ -7,12 +7,15 @@ import { useLogoutMutation } from '@/domains/auth/login/apis/login.api';
 import { useSidebar } from '@/common/hooks/useSidebar';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useGetNotificationStatsQuery } from '@/domains/portal/notifications/apis/notification.api';
 
 export const Navbar = () => {
     const { user } = useAppSelector((state) => state.auth);
     const [logout, { isLoading }] = useLogoutMutation();
     const { toggle } = useSidebar();
     const navigate = useNavigate();
+    const { data: notificationStats } = useGetNotificationStatsQuery();
+    const unreadCount = notificationStats?.data?.unread_notifications ?? 0;
 
     const handleLogout = async () => {
         try {
@@ -53,9 +56,21 @@ export const Navbar = () => {
                 {/* Right Section */}
                 <div className="flex items-center gap-2 lg:gap-4">
                     {/* Notifications */}
-                    <button className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/notifications')}
+                        aria-label="Notifications"
+                        className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
                         <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-[#ee9807] rounded-full"></span>
+                        {unreadCount > 0 && (
+                            <span
+                                data-testid="notification-badge"
+                                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-semibold text-white bg-[#ee9807] rounded-full"
+                            >
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </button>
 
                     {/* User Menu */}
