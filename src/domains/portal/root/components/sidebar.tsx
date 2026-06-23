@@ -17,7 +17,8 @@ import {
     Megaphone,
     Globe,
     FileCheck,
-    CalendarDays
+    CalendarDays,
+    ScrollText
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
@@ -108,6 +109,11 @@ const navItemsConfig: NavItem[] = [
         title: 'Landing Content',
         href: '/landing-content',
         icon: Globe,
+    },
+    {
+        title: 'Audit Log',
+        href: '/audit-logs',
+        icon: ScrollText,
     },
     {
         title: 'Notifications',

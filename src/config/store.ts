@@ -21,6 +21,7 @@ import { announcementsApi } from "@/domains/portal/announcements/apis/announceme
 import { landingContentApi } from "@/domains/portal/landing-content/apis/landing-content.api";
 import { complianceApi } from "@/domains/portal/compliance/apis/compliance.api";
 import { demoRequestApi } from "@/domains/portal/demo-requests/apis/demo-request.api";
+import { auditLogsApi } from "@/domains/portal/audit-logs/apis/audit-logs.api";
 
 export const store = configureStore({
     reducer: {
@@ -45,7 +46,8 @@ export const store = configureStore({
       [announcementsApi.reducerPath]: announcementsApi.reducer,
       [landingContentApi.reducerPath]: landingContentApi.reducer,
       [complianceApi.reducerPath]: complianceApi.reducer,
-      [demoRequestApi.reducerPath]: demoRequestApi.reducer
+      [demoRequestApi.reducerPath]: demoRequestApi.reducer,
+      [auditLogsApi.reducerPath]: auditLogsApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
@@ -67,7 +69,8 @@ export const store = configureStore({
         .concat(announcementsApi.middleware)
         .concat(landingContentApi.middleware)
         .concat(complianceApi.middleware)
-        .concat(demoRequestApi.middleware),
+        .concat(demoRequestApi.middleware)
+        .concat(auditLogsApi.middleware),
   });
 
 // Enable refetchOnFocus and refetchOnReconnect behaviors

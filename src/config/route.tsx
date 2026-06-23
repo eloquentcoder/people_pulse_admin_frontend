@@ -23,6 +23,7 @@ import LandingContentPage from "@/domains/portal/landing-content/pages/landing-c
 import ComplianceReviewPage from "@/domains/portal/compliance/pages/compliance-review.page";
 import OrganizationComplianceDetailPage from "@/domains/portal/compliance/pages/organization-compliance-detail.page";
 import DemoRequestsPage from "@/domains/portal/demo-requests/pages/demo-requests.page";
+import AuditLogsPage from "@/domains/portal/audit-logs/pages/audit-logs.page";
 
 export const routes = createBrowserRouter([
     {
@@ -130,6 +131,10 @@ export const routes = createBrowserRouter([
             {
                 path: 'demo-requests',
                 element: <DemoRequestsPage />,
+            },
+            {
+                path: 'audit-logs',
+                element: <AuditLogsPage />,
             },
         ],
     }
