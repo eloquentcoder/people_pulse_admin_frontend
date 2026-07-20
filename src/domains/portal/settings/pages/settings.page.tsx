@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { 
-  Settings as SettingsIcon,
   Globe,
   Shield,
   Mail,
@@ -9,11 +8,10 @@ import {
   Zap,
   Link,
   HardDrive,
-  Save,
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/common/components/ui/card';
+import { Card, CardContent } from '@/common/components/ui/card';
 import { Button } from '@/common/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/common/components/ui/tabs';
 import { GeneralSettingsSection } from '../components/general-settings-section';
@@ -24,6 +22,7 @@ import { BrandingSettingsSection } from '../components/branding-settings-section
 import { FeatureFlagsSection } from '../components/feature-flags-section';
 import { IntegrationSettingsSection } from '../components/integration-settings-section';
 import { MaintenanceSettingsSection } from '../components/maintenance-settings-section';
+import { BillingInterfaceSection } from '../components/billing-interface-section';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -67,6 +66,8 @@ const SettingsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      <BillingInterfaceSection />
 
       {/* Settings Tabs */}
       <Card>
@@ -150,5 +151,3 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
-
-
