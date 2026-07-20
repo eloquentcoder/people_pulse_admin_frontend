@@ -63,6 +63,22 @@ export const organizationApi = createApi({
       ],
     }),
 
+    // Toggle the organization-facing billing interface
+    updateBillingInterface: builder.mutation<
+      ApiResponse<Organization>,
+      { id: number; enabled: boolean }
+    >({
+      query: ({ id, enabled }) => ({
+        url: `/${id}/billing-interface`,
+        method: 'PATCH',
+        body: { enabled },
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Organization', id },
+        'Organization',
+      ],
+    }),
+
     // Activate organization
     activateOrganization: builder.mutation<ApiResponse<Organization>, number>({
       query: (id) => ({
@@ -126,6 +142,7 @@ export const {
   useCreateOrganizationMutation,
   useGetOrganizationQuery,
   useUpdateOrganizationMutation,
+  useUpdateBillingInterfaceMutation,
   useActivateOrganizationMutation,
   useDeactivateOrganizationMutation,
   useOnboardAdminMutation,
