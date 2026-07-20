@@ -12,7 +12,8 @@ import type {
   BrandingSettings,
   FeatureFlags,
   IntegrationSettings,
-  MaintenanceSettings
+  MaintenanceSettings,
+  BillingInterfaceSetting,
 } from '../models/settings.model';
 
 export const settingsApi = createApi({
@@ -75,6 +76,11 @@ export const settingsApi = createApi({
 
     getMaintenanceSettings: builder.query<ApiResponse<MaintenanceSettings>, void>({
       query: () => '/maintenance',
+      providesTags: ['Settings'],
+    }),
+
+    getBillingInterfaceSetting: builder.query<ApiResponse<BillingInterfaceSetting>, void>({
+      query: () => '/billing-interface',
       providesTags: ['Settings'],
     }),
 
@@ -161,6 +167,15 @@ export const settingsApi = createApi({
       invalidatesTags: ['Settings'],
     }),
 
+    updateBillingInterfaceSetting: builder.mutation<ApiResponse<BillingInterfaceSetting>, { enabled: boolean }>({
+      query: (data) => ({
+        url: '/billing-interface',
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['Settings'],
+    }),
+
     // Test email
     testEmail: builder.mutation<ApiResponse<{ sent: boolean }>, { to: string }>({
       query: (data) => ({
@@ -200,8 +215,8 @@ export const {
   useUpdateFeatureFlagsMutation,
   useUpdateIntegrationSettingsMutation,
   useUpdateMaintenanceSettingsMutation,
+  useGetBillingInterfaceSettingQuery,
+  useUpdateBillingInterfaceSettingMutation,
   useTestEmailMutation,
   useClearCacheMutation,
 } = settingsApi;
-
-
