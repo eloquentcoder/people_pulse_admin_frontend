@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui
 import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
 import { AssignPlanModal } from './assign-plan-modal';
+import { BillingInterfaceToggle } from './billing-interface-toggle';
 import type { Organization } from '../models/organization.model';
 import type { Subscription } from '@/common/models/subscription.model';
 
@@ -109,6 +110,11 @@ export const OrganizationSubscriptionTab = ({
           {hasActiveSubscription ? 'Change Plan' : 'Assign Plan'}
         </Button>
       </div>
+
+      <BillingInterfaceToggle
+        organization={organization}
+        onSuccess={onSubscriptionChange}
+      />
 
       {/* Subscription Info */}
       {subscription ? (
