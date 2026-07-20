@@ -103,6 +103,10 @@ export interface Organization {
   positions?: Position[];
   employees?: Employee[];
   active_subscription?: Subscription;
+  settings?: {
+    billing_interface_enabled?: boolean;
+    [key: string]: unknown;
+  };
 }
   
   export interface OrganizationFilters {
