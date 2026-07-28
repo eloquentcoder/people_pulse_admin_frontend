@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_URL } from '@/config/url';
 import type { User } from '@/common/models/user.model';
-import type { LoginFormValues } from '../schemas/login.schema';
 import type { ApiResponse } from '@/common/models/response.model';
 import type { RootState } from '@/config/store';
 
@@ -56,6 +55,12 @@ export const authApi = createApi({
   },
   tagTypes: ['User', 'Auth'],
   endpoints: (builder) => ({
+    validatePlatformInvitation: builder.query<ApiResponse<{ email: string; first_name: string; last_name: string; expires_at: string }>, string>({
+      query: (token) => `/auth/invitations/${token}`,
+    }),
+    acceptPlatformInvitation: builder.mutation<ApiResponse<{ id: number; email: string }>, { token: string; password: string }>({
+      query: ({ token, password }) => ({ url: `/auth/invitations/${token}/accept`, method: 'POST', body: { password } }),
+    }),
     login: builder.mutation<ApiResponse<LoginResponse>, LoginRequest>({
       query: (credentials) => ({
         url: '/auth/login',
@@ -93,9 +98,10 @@ export const authApi = createApi({
 });
 
 export const {
+  useValidatePlatformInvitationQuery,
+  useAcceptPlatformInvitationMutation,
   useLoginMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
   useRefreshTokenMutation,
 } = authApi;
-
