@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
 
     // Not a platform admin - show unauthorized
-    if (user.user_type !== 'platform_admin') {
+    if (user.user_type !== 'platform_admin' || !user.is_active) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <div className="text-center">
@@ -37,4 +37,3 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
     return <>{children}</>;
 };
-

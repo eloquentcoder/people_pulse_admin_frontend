@@ -1,4 +1,5 @@
 import LoginPage from "@/domains/auth/login/page/login.page";
+import AdminSetupPage from "@/domains/auth/login/page/admin-setup.page";
 import AuthRootPage from "@/domains/auth/root/pages/root.page";
 import { DashboardPage } from "@/domains/portal/dashboard/pages/dashboard.page";
 import { PortalRootPage } from "@/domains/portal/root/pages/root.page";
@@ -24,6 +25,13 @@ import ComplianceReviewPage from "@/domains/portal/compliance/pages/compliance-r
 import OrganizationComplianceDetailPage from "@/domains/portal/compliance/pages/organization-compliance-detail.page";
 import DemoRequestsPage from "@/domains/portal/demo-requests/pages/demo-requests.page";
 import AuditLogsPage from "@/domains/portal/audit-logs/pages/audit-logs.page";
+import type { ReactNode } from "react";
+import PlatformAdminsPage from "@/domains/portal/platform-admins/pages/platform-admins.page";
+import { PermissionRoute } from "@/common/components/permission-route";
+
+const gated = (permission: string, element: ReactNode) => (
+    <PermissionRoute permission={permission}>{element}</PermissionRoute>
+);
 
 export const routes = createBrowserRouter([
     {
@@ -38,6 +46,10 @@ export const routes = createBrowserRouter([
                 path: 'login',
                 element: <LoginPage />,
             },
+            {
+                path: 'admin/setup',
+                element: <AdminSetupPage />,
+            },
         ],
     },
     {
@@ -50,31 +62,35 @@ export const routes = createBrowserRouter([
         children: [
             {
                 path: 'dashboard',
-                element: <DashboardPage />,
+                element: gated('view-analytics', <DashboardPage />),
             },
             {
                 path: 'organizations',
-                element: <OrganizationPage />,
+                element: gated('view-organizations', <OrganizationPage />),
             },
             {
                 path: 'organizations/:id',
-                element: <OrganizationDetailPage />,
+                element: gated('view-organizations', <OrganizationDetailPage />),
             },
             {
                 path: 'subscriptions',
-                element: <SubscriptionManagementPage/>,
+                element: gated('view-subscriptions', <SubscriptionManagementPage/>),
             },
             {
                 path: 'users',
-                element: <UserManagementPage />,
+                element: gated('view-all-users', <UserManagementPage />),
+            },
+            {
+                path: 'platform-admins',
+                element: gated('view-all-users', <PlatformAdminsPage />),
             },
             {
                 path: 'plans',
-                element: <PlansPage />,
+                element: gated('view-plans', <PlansPage />),
             },
             {
                 path: 'features',
-                element: <FeaturesPage />,
+                element: gated('manage-feature-flags', <FeaturesPage />),
             },
             {
                 path: 'ai-models',
@@ -82,31 +98,31 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'analytics',
-                element: <AnalyticsPage />,
+                element: gated('view-analytics', <AnalyticsPage />),
             },
             {
                 path: 'billing',
-                element: <BillingPage />,
+                element: gated('view-billing', <BillingPage />),
             },
             {
                 path: 'support',
-                element: <SupportTicketsPage />,
+                element: gated('view-all-tickets', <SupportTicketsPage />),
             },
             {
                 path: 'notifications',
-                element: <NotificationsPage />,
+                element: gated('view-system-settings', <NotificationsPage />),
             },
             {
                 path: 'settings',
-                element: <SettingsPage />,
+                element: gated('view-system-settings', <SettingsPage />),
             },
             {
                 path: 'roles-permissions',
-                element: <RolesPermissionsPage />,
+                element: gated('roles.view', <RolesPermissionsPage />),
             },
             {
                 path: 'hr-templates',
-                element: <HRTemplatesPage />,
+                element: gated('view-system-settings', <HRTemplatesPage />),
             },
             {
                 path: 'profile',
@@ -114,27 +130,27 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'announcements',
-                element: <AnnouncementsPage />,
+                element: gated('view-system-settings', <AnnouncementsPage />),
             },
             {
                 path: 'landing-content',
-                element: <LandingContentPage />,
+                element: gated('view-system-settings', <LandingContentPage />),
             },
             {
                 path: 'compliance',
-                element: <ComplianceReviewPage />,
+                element: gated('view-organizations', <ComplianceReviewPage />),
             },
             {
                 path: 'compliance/organizations/:id',
-                element: <OrganizationComplianceDetailPage />,
+                element: gated('view-organizations', <OrganizationComplianceDetailPage />),
             },
             {
                 path: 'demo-requests',
-                element: <DemoRequestsPage />,
+                element: gated('view-system-settings', <DemoRequestsPage />),
             },
             {
                 path: 'audit-logs',
-                element: <AuditLogsPage />,
+                element: gated('view-audit-logs', <AuditLogsPage />),
             },
         ],
     }
