@@ -18,19 +18,23 @@ import {
     Globe,
     FileCheck,
     CalendarDays,
-    ScrollText
+    ScrollText,
+    ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/common/lib/utils';
 import { useSidebar } from '@/common/hooks/useSidebar';
 import { useEffect, useMemo } from 'react';
 import logo from '@/assets/favicon.png';
 import { useGetSupportTicketStatsQuery } from '@/domains/portal/support-tickets/apis/support-ticket.api';
+import { useAppSelector } from '@/common/hooks/useAppSelector';
+import { canAccess } from '@/common/auth/permissions';
 
 interface NavItem {
     title: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
     badgeKey?: 'openTickets';
+    permission?: string;
 }
 
 const navItemsConfig: NavItem[] = [
@@ -38,98 +42,123 @@ const navItemsConfig: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutDashboard,
+        permission: 'view-analytics',
     },
     {
         title: 'Organizations',
         href: '/organizations',
         icon: Building2,
+        permission: 'view-organizations',
     },
     {
         title: 'Compliance Review',
         href: '/compliance',
         icon: FileCheck,
+        permission: 'view-organizations',
     },
     {
         title: 'Subscriptions',
         href: '/subscriptions',
         icon: CreditCard,
+        permission: 'view-subscriptions',
     },
     {
         title: 'Users',
         href: '/users',
         icon: Users,
+        permission: 'view-all-users',
     },
     {
         title: 'Roles & Permissions',
         href: '/roles-permissions',
         icon: Shield,
+        permission: 'roles.view',
+    },
+    {
+        title: 'Platform Admins',
+        href: '/platform-admins',
+        icon: ShieldCheck,
+        permission: 'view-all-users',
     },
     {
         title: 'Email Templates',
         href: '/hr-templates',
         icon: ClipboardList,
+        permission: 'view-system-settings',
     },
     {
         title: 'Plans',
         href: '/plans',
         icon: Package,
+        permission: 'view-plans',
     },
     {
         title: 'Features',
         href: '/features',
         icon: Tag,
+        permission: 'manage-feature-flags',
     },
     {
         title: 'Analytics',
         href: '/analytics',
         icon: BarChart3,
+        permission: 'view-analytics',
     },
     {
         title: 'Billing',
         href: '/billing',
         icon: FileText,
+        permission: 'view-billing',
     },
     {
         title: 'Support Tickets',
         href: '/support',
         icon: HelpCircle,
         badgeKey: 'openTickets',
+        permission: 'view-all-tickets',
     },
     {
         title: 'Demo Requests',
         href: '/demo-requests',
         icon: CalendarDays,
+        permission: 'view-system-settings',
     },
     {
         title: 'Announcements',
         href: '/announcements',
         icon: Megaphone,
+        permission: 'view-system-settings',
     },
     {
         title: 'Landing Content',
         href: '/landing-content',
         icon: Globe,
+        permission: 'view-system-settings',
     },
     {
         title: 'Audit Log',
         href: '/audit-logs',
         icon: ScrollText,
+        permission: 'view-audit-logs',
     },
     {
         title: 'Notifications',
         href: '/notifications',
         icon: Bell,
+        permission: 'view-system-settings',
     },
     {
         title: 'Settings',
         href: '/settings',
         icon: Settings,
+        permission: 'view-system-settings',
     },
 ];
 
 export const Sidebar = () => {
     const { isOpen, close } = useSidebar();
     const location = useLocation();
+    const user = useAppSelector((state) => state.auth.user);
 
     // Fetch support ticket stats for badge
     const { data: ticketStatsData } = useGetSupportTicketStatsQuery();
@@ -137,18 +166,18 @@ export const Sidebar = () => {
 
     // Build nav items with dynamic badges
     const navItems = useMemo(() => {
-        return navItemsConfig.map(item => ({
+        return navItemsConfig.filter(item => !item.permission || canAccess(user, item.permission)).map(item => ({
             ...item,
             badge: item.badgeKey === 'openTickets' && openTicketsCount > 0
                 ? openTicketsCount.toString()
                 : undefined
         }));
-    }, [openTicketsCount]);
+    }, [openTicketsCount, user]);
 
     // Close sidebar on route change (mobile)
     useEffect(() => {
         close();
-    }, [location]);
+    }, [location, close]);
 
     return (
         <>
