@@ -23,6 +23,7 @@ import { FeatureFlagsSection } from '../components/feature-flags-section';
 import { IntegrationSettingsSection } from '../components/integration-settings-section';
 import { MaintenanceSettingsSection } from '../components/maintenance-settings-section';
 import { BillingInterfaceSection } from '../components/billing-interface-section';
+import { AdminNotificationEmailsSection } from '../components/admin-notification-emails-section';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -68,6 +69,7 @@ const SettingsPage = () => {
       </Card>
 
       <BillingInterfaceSection />
+      <AdminNotificationEmailsSection />
 
       {/* Settings Tabs */}
       <Card>
