@@ -13,6 +13,10 @@ export interface BillingInterfaceSetting {
   enabled: boolean;
 }
 
+export interface AdminNotificationEmailsSetting {
+  emails: string[];
+}
+
 export interface GeneralSettings {
   platform_name: string;
   platform_url: string;
@@ -130,4 +134,3 @@ export interface UpdateSettingsData {
   integrations?: Partial<IntegrationSettings>;
   maintenance?: Partial<MaintenanceSettings>;
 }
-

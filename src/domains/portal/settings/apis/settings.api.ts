@@ -14,6 +14,7 @@ import type {
   IntegrationSettings,
   MaintenanceSettings,
   BillingInterfaceSetting,
+  AdminNotificationEmailsSetting,
 } from '../models/settings.model';
 
 export const settingsApi = createApi({
@@ -81,6 +82,11 @@ export const settingsApi = createApi({
 
     getBillingInterfaceSetting: builder.query<ApiResponse<BillingInterfaceSetting>, void>({
       query: () => '/billing-interface',
+      providesTags: ['Settings'],
+    }),
+
+    getAdminNotificationEmails: builder.query<ApiResponse<AdminNotificationEmailsSetting>, void>({
+      query: () => '/admin-notification-emails',
       providesTags: ['Settings'],
     }),
 
@@ -176,6 +182,15 @@ export const settingsApi = createApi({
       invalidatesTags: ['Settings'],
     }),
 
+    updateAdminNotificationEmails: builder.mutation<ApiResponse<AdminNotificationEmailsSetting>, { emails: string[] }>({
+      query: (data) => ({
+        url: '/admin-notification-emails',
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['Settings'],
+    }),
+
     // Test email
     testEmail: builder.mutation<ApiResponse<{ sent: boolean }>, { to: string }>({
       query: (data) => ({
@@ -217,6 +232,8 @@ export const {
   useUpdateMaintenanceSettingsMutation,
   useGetBillingInterfaceSettingQuery,
   useUpdateBillingInterfaceSettingMutation,
+  useGetAdminNotificationEmailsQuery,
+  useUpdateAdminNotificationEmailsMutation,
   useTestEmailMutation,
   useClearCacheMutation,
 } = settingsApi;
