@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,10 +13,17 @@ import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/common/components/ui/select';
 import { Badge } from '@/common/components/ui/badge';
-import { Subscription, SubscriptionFormData, Organization, Plan } from '../types';
+import { Subscription, SubscriptionFormData, Organization } from '../types';
+import type { Plan } from '@/common/models/plan.model';
 import { subscriptionValidationSchema } from '../validations';
-import { buildInitialFormValues, findPlanById } from '../utils/formValues';
-import { fetchPlans } from '@/domains/portal/plans/apis';
+import {
+  buildInitialFormValues,
+  computePeriodEnd,
+  computeTrialEnd,
+  findPlanById,
+  toFormCycle,
+} from '../utils/formValues';
+import { useGetPlansQuery } from '../apis/subscription.api';
 import { X, Plus, Calendar, Banknote, Building2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,27 +45,23 @@ export function SubscriptionForm({
   organizations = []
 }: SubscriptionFormProps) {
   const [featureInput, setFeatureInput] = useState('');
-  const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [loadingPlans, setLoadingPlans] = useState(false);
+
+  // Plans must come through the platform API slice so the request carries the
+  // admin's bearer token and the configured API base url.
+  const {
+    data: plansResponse,
+    isFetching: loadingPlans,
+    isError: plansFailed,
+  } = useGetPlansQuery(undefined, { skip: !open });
+
+  const plans = useMemo(() => plansResponse?.data ?? [], [plansResponse]);
 
   useEffect(() => {
-    if (open) {
-      loadPlans();
-    }
-  }, [open]);
-
-  const loadPlans = async () => {
-    try {
-      setLoadingPlans(true);
-      const plansData = await fetchPlans({ is_active: true });
-      setPlans(plansData);
-    } catch {
+    if (plansFailed) {
       toast.error('Failed to load plans');
-    } finally {
-      setLoadingPlans(false);
     }
-  };
+  }, [plansFailed]);
 
   const formik = useFormik<SubscriptionFormData>({
     initialValues: buildInitialFormValues(subscription),
@@ -69,39 +72,37 @@ export function SubscriptionForm({
     enableReinitialize: true,
   });
 
+  // Keep the trigger label and every plan-driven recalculation working when the
+  // form is opened on an existing subscription (the plan is not re-picked).
+  const currentPlanId = formik.values.plan_id;
+  useEffect(() => {
+    const plan = findPlanById(plans, currentPlanId);
+    setSelectedPlan(plan ?? null);
+  }, [plans, currentPlanId]);
+
   const handlePlanChange = (planId: string) => {
+    // Radix fires onValueChange('') on mount under jsdom; ignore it so the
+    // pre-selected plan is not wiped.
+    if (!planId) return;
+
     formik.setFieldValue('plan_id', planId);
     const plan = findPlanById(plans, planId);
     setSelectedPlan(plan || null);
 
     if (plan) {
       // Auto-fill form fields based on selected plan
-      formik.setFieldValue('amount', plan.price);
-      formik.setFieldValue('billing_cycle', plan.billing_cycle);
-      formik.setFieldValue('features', plan.features);
+      formik.setFieldValue('amount', Number(plan.price));
+      formik.setFieldValue('billing_cycle', toFormCycle(plan.billing_cycle));
+      formik.setFieldValue('features', plan.features ?? []);
 
       // Calculate end date based on billing cycle and start date
       if (formik.values.starts_at) {
-        const startDate = new Date(formik.values.starts_at);
-        let endDate = new Date(startDate);
-
-        if (plan.billing_cycle === 'monthly') {
-          endDate.setMonth(endDate.getMonth() + 1);
-        } else if (plan.billing_cycle === 'yearly') {
-          endDate.setFullYear(endDate.getFullYear() + 1);
-        } else if (plan.billing_cycle === 'one-time') {
-          endDate = null;
-        }
-
-        formik.setFieldValue('ends_at', endDate ? endDate.toISOString().split('T')[0] : null);
+        formik.setFieldValue('ends_at', computePeriodEnd(formik.values.starts_at, plan.billing_cycle));
       }
 
       // Set trial end date if trial status and plan has trial days
       if (formik.values.status === 'trial' && plan.trial_days > 0) {
-        const trialStartDate = new Date(formik.values.starts_at);
-        const trialEndDate = new Date(trialStartDate);
-        trialEndDate.setDate(trialEndDate.getDate() + plan.trial_days);
-        formik.setFieldValue('trial_ends_at', trialEndDate.toISOString().split('T')[0]);
+        formik.setFieldValue('trial_ends_at', computeTrialEnd(formik.values.starts_at, plan.trial_days));
       }
     }
   };
@@ -112,10 +113,7 @@ export function SubscriptionForm({
     if (status === 'active') {
       formik.setFieldValue('trial_ends_at', null);
     } else if (status === 'trial' && selectedPlan && selectedPlan.trial_days > 0) {
-      const trialStartDate = new Date(formik.values.starts_at);
-      const trialEndDate = new Date(trialStartDate);
-      trialEndDate.setDate(trialEndDate.getDate() + selectedPlan.trial_days);
-      formik.setFieldValue('trial_ends_at', trialEndDate.toISOString().split('T')[0]);
+      formik.setFieldValue('trial_ends_at', computeTrialEnd(formik.values.starts_at, selectedPlan.trial_days));
     }
   };
 
@@ -125,24 +123,11 @@ export function SubscriptionForm({
 
     // Recalculate end date and trial end date
     if (selectedPlan && startDate) {
-      const start = new Date(startDate);
-      let endDate = new Date(start);
-
-      if (selectedPlan.billing_cycle === 'monthly') {
-        endDate.setMonth(endDate.getMonth() + 1);
-      } else if (selectedPlan.billing_cycle === 'yearly') {
-        endDate.setFullYear(endDate.getFullYear() + 1);
-      } else if (selectedPlan.billing_cycle === 'one-time') {
-        endDate = null;
-      }
-
-      formik.setFieldValue('ends_at', endDate ? endDate.toISOString().split('T')[0] : null);
+      formik.setFieldValue('ends_at', computePeriodEnd(startDate, selectedPlan.billing_cycle));
 
       // Update trial end date if in trial status
       if (formik.values.status === 'trial' && selectedPlan.trial_days > 0) {
-        const trialEndDate = new Date(start);
-        trialEndDate.setDate(trialEndDate.getDate() + selectedPlan.trial_days);
-        formik.setFieldValue('trial_ends_at', trialEndDate.toISOString().split('T')[0]);
+        formik.setFieldValue('trial_ends_at', computeTrialEnd(startDate, selectedPlan.trial_days));
       }
     }
   };
@@ -239,7 +224,8 @@ export function SubscriptionForm({
                             <Badge variant="outline">{plan.billing_cycle}</Badge>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            ₦{plan.price.toLocaleString()}/{plan.billing_cycle === 'monthly' ? 'mo' : plan.billing_cycle === 'yearly' ? 'yr' : 'once'}
+                            {/* price arrives as a decimal string from the API */}
+                            ₦{Number(plan.price).toLocaleString()}/{toFormCycle(plan.billing_cycle) === 'monthly' ? 'mo' : toFormCycle(plan.billing_cycle) === 'yearly' ? 'yr' : 'once'}
                           </div>
                         </div>
                       </div>
