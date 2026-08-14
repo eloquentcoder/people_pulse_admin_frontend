@@ -6,6 +6,9 @@ export interface Plan {
     description?: string;
     price: number;
     billing_cycle: 'monthly' | 'yearly' | 'quarterly';
+    currency?: string;
+    /** Discount applied to the 12-month total when the plan is paid yearly. Null = none. */
+    yearly_discount_percent?: number | string | null;
     max_employees?: number;
     max_storage_gb?: number;
     features?: string[];

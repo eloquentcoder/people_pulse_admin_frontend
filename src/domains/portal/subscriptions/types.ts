@@ -1,7 +1,8 @@
 // Shared types for the subscriptions domain.
 //
-// - `Plan` is the plans-domain plan (string id, supports 'one-time') because the
-//   SubscriptionForm dropdown is populated from `fetchPlans`.
+// - `Plan` is the plans-domain plan (string id, supports 'one-time'); the
+//   SubscriptionForm dropdown itself uses the canonical plan model returned by
+//   the platform plans endpoint.
 // - `Organization` re-exports the canonical organization model.
 // - `Subscription` is a local view-model: a superset of the canonical subscription
 //   that also carries the optional `billing_transactions` relationship returned by

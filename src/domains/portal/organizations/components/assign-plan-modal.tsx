@@ -13,6 +13,11 @@ import {
 import { toast } from 'sonner';
 import type { Subscription } from '@/common/models/subscription.model';
 import type { Plan } from '@/common/models/plan.model';
+import {
+  hasYearlyDiscount,
+  normalizeDiscountPercent,
+  yearlyTotal,
+} from '../../plans/utils/yearlyPricing';
 
 interface AssignPlanModalProps {
   isOpen: boolean;
@@ -102,7 +107,7 @@ export const AssignPlanModal = ({
       if (selectedPlan) {
         const amount =
           formik.values.billing_cycle === 'yearly'
-            ? selectedPlan.price * 12 * 0.8 // 20% discount for yearly
+            ? yearlyTotal(selectedPlan.price, selectedPlan.yearly_discount_percent)
             : selectedPlan.price;
         formik.setFieldValue('amount', amount);
       }
@@ -251,7 +256,11 @@ export const AssignPlanModal = ({
                 }`}
               >
                 Yearly
-                <span className="ml-1 text-xs text-green-600">(Save 20%)</span>
+                {hasYearlyDiscount(selectedPlan?.yearly_discount_percent) && (
+                  <span className="ml-1 text-xs text-green-600">
+                    (Save {normalizeDiscountPercent(selectedPlan?.yearly_discount_percent)}%)
+                  </span>
+                )}
               </button>
             </div>
           </div>

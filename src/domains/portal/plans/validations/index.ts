@@ -22,6 +22,14 @@ export const planValidationSchema = Yup.object({
     .min(0, 'Price must be non-negative')
     .max(999999.99, 'Price is too high'),
 
+  // Blank means no yearly discount, so an empty input must become null rather than NaN.
+  yearly_discount_percent: Yup.number()
+    .transform((value, original) => (original === '' || original === null ? null : value))
+    .nullable()
+    .typeError('Discount must be a number')
+    .min(0, 'Discount cannot be negative')
+    .max(100, 'Discount cannot exceed 100%'),
+
   billing_cycle: Yup.string()
     .required('Billing cycle is required')
     .oneOf(['monthly', 'yearly', 'quarterly', 'one-time'], 'Invalid billing cycle'),
