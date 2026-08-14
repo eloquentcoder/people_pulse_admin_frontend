@@ -9,6 +9,8 @@ import { Badge } from '@/common/components/ui/badge';
 import { Card, CardContent } from '@/common/components/ui/card';
 import { Separator } from '@/common/components/ui/separator';
 import { Plan } from '../types';
+import { hasYearlyDiscount, normalizeDiscountPercent, yearlySavings, yearlyTotal } from '../utils/yearlyPricing';
+import { formatPlanPrice } from '../utils/formatPlanPrice';
 import {
   Banknote,
   Users,
@@ -31,13 +33,8 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
   if (!plan) return null;
 
   const formatPrice = (price: number, cycle: string, currency?: string) => {
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'NGN'
-    }).format(price);
-
     const suffix = cycle === 'monthly' ? '/month' : cycle === 'yearly' ? '/year' : cycle === 'quarterly' ? '/quarter' : '';
-    return `${formatted}${suffix}`;
+    return `${formatPlanPrice(price, currency)}${suffix}`;
   };
 
   // Get features from the Feature model relationship
@@ -112,6 +109,35 @@ export function PlanDetails({ open, onClose, plan }: PlanDetailsProps) {
                   <div>
                     <p className="text-sm text-muted-foreground">Billing Cycle</p>
                     <p className="text-lg font-semibold capitalize">{plan.billing_cycle}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Banknote className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Yearly Discount</p>
+                    {hasYearlyDiscount(plan.yearly_discount_percent) ? (
+                      <>
+                        <p className="text-lg font-semibold">
+                          {normalizeDiscountPercent(plan.yearly_discount_percent)}% off
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatPlanPrice(
+                            yearlyTotal(plan.price, plan.yearly_discount_percent),
+                            plan.currency,
+                          )}
+                          /year &middot; saves{' '}
+                          {formatPlanPrice(
+                            yearlySavings(plan.price, plan.yearly_discount_percent),
+                            plan.currency,
+                          )}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-lg font-semibold">None</p>
+                    )}
                   </div>
                 </div>
 

@@ -11,6 +11,28 @@ const renewMock = vi.fn(() => ({ unwrap: () => Promise.resolve({}) }));
 const deleteMock = vi.fn(() => ({ unwrap: () => Promise.resolve({}) }));
 const createMock = vi.fn(() => ({ unwrap: () => Promise.resolve({}) }));
 
+const plansResult = {
+  data: {
+    success: true,
+    message: "ok",
+    data: [
+      {
+        id: 2,
+        name: "Pro Plan",
+        slug: "pro",
+        price: 1000,
+        billing_cycle: "monthly",
+        is_active: true,
+        is_popular: false,
+        trial_days: 14,
+        features: ["Feature A"],
+      },
+    ],
+  },
+  isFetching: false,
+  isError: false,
+};
+
 const plan = {
   id: 2,
   name: "Pro Plan",
@@ -63,6 +85,8 @@ vi.mock("../apis/subscription.api", () => ({
     refetch: vi.fn(),
   }),
   useGetSubscriptionStatsQuery: () => ({ data: undefined }),
+  // Stable reference — a fresh object per render would loop the form forever.
+  useGetPlansQuery: () => plansResult,
   useUpdateSubscriptionMutation: () => [updateMock, { isLoading: false }],
   useCreateSubscriptionMutation: () => [createMock, { isLoading: false }],
   useCancelSubscriptionMutation: () => [cancelMock, {}],

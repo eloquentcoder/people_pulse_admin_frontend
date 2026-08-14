@@ -24,6 +24,8 @@ export interface Plan {
   is_popular: boolean;
   trial_days: number;
   currency?: string;
+  /** Discount applied to the 12-month total when the plan is paid yearly. Null = none. */
+  yearly_discount_percent?: number | string | null;
   display_order?: number;
   parent_plan_id?: string | null;
   parent_plan?: Plan | null;
@@ -47,6 +49,8 @@ export interface PlanFormData {
   is_popular: boolean;
   trial_days: number;
   currency?: string;
+  /** Discount applied to the 12-month total when the plan is paid yearly. Null = none. */
+  yearly_discount_percent?: number | null;
   display_order?: number;
   parent_plan_id?: string | null;
 }

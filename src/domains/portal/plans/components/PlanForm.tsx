@@ -17,6 +17,8 @@ import { Plan, PlanFormData } from '../types';
 import { planValidationSchema } from '../validations';
 import { FeatureSelector } from './FeatureSelector';
 import { useGetPlansQuery } from '../apis/plans.api';
+import { hasYearlyDiscount, yearlySavings, yearlyTotal } from '../utils/yearlyPricing';
+import { formatPlanPrice } from '../utils/formatPlanPrice';
 
 interface PlanFormProps {
   open: boolean;
@@ -58,6 +60,10 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
       is_popular: plan?.is_popular || false,
       trial_days: plan?.trial_days || 14,
       currency: plan?.currency || 'USD',
+      yearly_discount_percent:
+        plan?.yearly_discount_percent === null || plan?.yearly_discount_percent === undefined
+          ? null
+          : Number(plan.yearly_discount_percent),
       display_order: plan?.display_order || 0,
       parent_plan_id: plan?.parent_plan_id || null,
     },
@@ -144,7 +150,7 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price" className="whitespace-nowrap">Price</Label>
               <Input
@@ -182,6 +188,32 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="yearly_discount_percent" className="whitespace-nowrap">
+                Yearly Discount (%)
+              </Label>
+              <Input
+                id="yearly_discount_percent"
+                name="yearly_discount_percent"
+                type="number"
+                step="0.01"
+                min={0}
+                max={100}
+                value={formik.values.yearly_discount_percent ?? ''}
+                onChange={(e) =>
+                  formik.setFieldValue(
+                    'yearly_discount_percent',
+                    e.target.value === '' ? null : Number(e.target.value),
+                  )
+                }
+                onBlur={formik.handleBlur}
+                placeholder="e.g., 16.67"
+              />
+              {formik.touched.yearly_discount_percent && formik.errors.yearly_discount_percent && (
+                <p className="text-sm text-destructive">{formik.errors.yearly_discount_percent}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="billing_cycle" className="whitespace-nowrap">Billing Cycle</Label>
               <Select
                 value={formik.values.billing_cycle}
@@ -202,6 +234,30 @@ export function PlanForm({ open, onClose, onSubmit, plan, loading }: PlanFormPro
               )}
             </div>
           </div>
+
+          <p className="text-xs text-gray-500" data-testid="yearly-discount-hint">
+            {hasYearlyDiscount(formik.values.yearly_discount_percent) ? (
+              <>
+                Paid yearly:{' '}
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {formatPlanPrice(
+                    yearlyTotal(formik.values.price, formik.values.yearly_discount_percent),
+                    formik.values.currency,
+                  )}
+                </span>{' '}
+                per employee &middot; saves{' '}
+                <span className="font-medium text-green-600">
+                  {formatPlanPrice(
+                    yearlySavings(formik.values.price, formik.values.yearly_discount_percent),
+                    formik.values.currency,
+                  )}
+                </span>{' '}
+                versus twelve monthly payments.
+              </>
+            ) : (
+              'Leave the discount blank for no yearly discount — a year is then billed as twelve full months.'
+            )}
+          </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="space-y-2">

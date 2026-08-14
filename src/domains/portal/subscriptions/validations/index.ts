@@ -11,11 +11,20 @@ export const subscriptionValidationSchema = Yup.object({
     .required('Status is required')
     .oneOf(['trial', 'active'], 'Invalid status'),
 
+  // A trial saved with a past end date leaves the organization locked behind the
+  // "a payment is needed" gate, so the date must be moved forward to save.
   trial_ends_at: Yup.date()
     .nullable()
     .when('status', {
       is: 'trial',
-      then: (schema) => schema.required('Trial end date is required for trial subscriptions'),
+      then: (schema) =>
+        schema
+          .required('Trial end date is required for trial subscriptions')
+          .test(
+            'trial-ends-in-future',
+            'Trial end date must be in the future',
+            (value) => !value || value.getTime() > Date.now()
+          ),
       otherwise: (schema) => schema.nullable(),
     }),
 
