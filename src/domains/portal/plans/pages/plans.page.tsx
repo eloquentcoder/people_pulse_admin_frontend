@@ -34,6 +34,8 @@ import {
 import { PlanForm } from '../components/PlanForm';
 import { PlanDetails } from '../components/PlanDetails';
 import type { Plan, PlanFormData } from '../types';
+import { hasYearlyDiscount, normalizeDiscountPercent } from '../utils/yearlyPricing';
+import { formatPlanPrice } from '../utils/formatPlanPrice';
 import { 
   useGetPlansQuery,
   useGetPlanStatsQuery,
@@ -128,14 +130,9 @@ const PlansPage = () => {
     }
   };
 
-  const formatPrice = (price: number, cycle: string) => {
-    const formatted = new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN'
-    }).format(price);
-
-    const suffix = cycle === 'monthly' ? '/mo' : cycle === 'yearly' ? '/yr' : '';
-    return `${formatted}${suffix}`;
+  const formatPrice = (price: number, cycle: string, currency?: string) => {
+    const suffix = cycle === 'monthly' ? '/mo' : cycle === 'yearly' ? '/yr' : cycle === 'quarterly' ? '/qtr' : '';
+    return `${formatPlanPrice(price, currency)}${suffix}`;
   };
 
   const getStatusBadge = (isActive: boolean) => {
@@ -431,12 +428,17 @@ const PlansPage = () => {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-gray-900 dark:text-white">
-                              {formatPrice(plan.price, plan.billing_cycle)}
+                              {formatPrice(plan.price, plan.billing_cycle, plan.currency)}
                             </span>
                           </div>
                           <Badge variant="outline" className="text-xs">
                             {plan.billing_cycle}
                           </Badge>
+                          {hasYearlyDiscount(plan.yearly_discount_percent) && (
+                            <p className="text-xs text-green-600">
+                              Save {normalizeDiscountPercent(plan.yearly_discount_percent)}% paid yearly
+                            </p>
+                          )}
                         </div>
                       </td>
                       <td className="py-6 px-6">
