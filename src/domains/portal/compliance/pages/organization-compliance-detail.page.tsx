@@ -36,6 +36,7 @@ import {
 } from '../models/compliance.model';
 import { ComplianceDocumentCard } from '../components/compliance-document-card';
 import { ComplianceReviewModal } from '../components/compliance-review-modal';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const OrganizationComplianceDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -258,6 +259,7 @@ const OrganizationComplianceDetailPage = () => {
       {organization.compliance_status !== 'approved' && (
         <div className="flex gap-3">
           {hasPendingDocuments && (
+            <PermissionGate permission="edit-compliance-review">
             <Button
               onClick={handleBulkApprove}
               disabled={isBulkApproving}
@@ -266,8 +268,10 @@ const OrganizationComplianceDetailPage = () => {
               <CheckCircle className="h-4 w-4 mr-2" />
               {isBulkApproving ? 'Approving...' : 'Approve All Pending'}
             </Button>
+            </PermissionGate>
           )}
           {canFinalApprove && organization.documents_summary?.approved === organization.documents_summary?.total_required && (
+            <PermissionGate permission="edit-compliance-review">
             <Button
               onClick={handleFinalApproval}
               disabled={isFinalApproving}
@@ -276,6 +280,7 @@ const OrganizationComplianceDetailPage = () => {
               <FileCheck className="h-4 w-4 mr-2" />
               {isFinalApproving ? 'Approving...' : 'Final Approval'}
             </Button>
+            </PermissionGate>
           )}
         </div>
       )}
@@ -329,6 +334,7 @@ const OrganizationComplianceDetailPage = () => {
 
       {/* Review Modal */}
       {selectedDocument && reviewAction && (
+        <PermissionGate permission="edit-compliance-review">
         <ComplianceReviewModal
           isOpen={true}
           onClose={() => {
@@ -347,6 +353,7 @@ const OrganizationComplianceDetailPage = () => {
           }}
           isLoading={isApproving || isRejecting}
         />
+        </PermissionGate>
       )}
     </div>
   );

@@ -59,6 +59,7 @@ import {
   useSendAnnouncementEmailsMutation,
 } from '../apis/announcements.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const AnnouncementsPage = () => {
   const [filters, setFilters] = useState<AnnouncementFilters>({
@@ -213,10 +214,12 @@ const AnnouncementsPage = () => {
             <RefreshCw className="w-4 h-4" />
             Refresh
           </Button>
+          <PermissionGate permission="create-announcements">
           <Button onClick={handleCreate} className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90">
             <Plus className="w-4 h-4" />
             New Announcement
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -348,10 +351,12 @@ const AnnouncementsPage = () => {
               <Megaphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No announcements found</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by creating your first announcement</p>
+              <PermissionGate permission="create-announcements">
               <Button onClick={handleCreate} className="flex items-center gap-2 mx-auto bg-[#4469e5] hover:bg-[#4469e5]/90">
                 <Plus className="w-4 h-4" />
                 New Announcement
               </Button>
+              </PermissionGate>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -411,33 +416,43 @@ const AnnouncementsPage = () => {
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
+                            <PermissionGate permission="edit-announcements">
                             <DropdownMenuItem onClick={() => handleEdit(announcement)}>
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
+                            </PermissionGate>
                             <DropdownMenuSeparator />
                             {announcement.status === 'draft' || announcement.status === 'scheduled' ? (
+                              <PermissionGate permission="edit-announcements">
                               <DropdownMenuItem onClick={() => handlePublish(announcement)}>
                                 <CheckCircle className="w-4 h-4 mr-2" />
                                 Publish Now
                               </DropdownMenuItem>
+                              </PermissionGate>
                             ) : announcement.status === 'published' ? (
+                              <PermissionGate permission="edit-announcements">
                               <DropdownMenuItem onClick={() => handleUnpublish(announcement)}>
                                 <XCircle className="w-4 h-4 mr-2" />
                                 Unpublish
                               </DropdownMenuItem>
+                              </PermissionGate>
                             ) : null}
                             {announcement.status === 'published' && announcement.send_email && !announcement.email_sent && (
+                              <PermissionGate permission="edit-announcements">
                               <DropdownMenuItem onClick={() => handleSendEmails(announcement)}>
                                 <Send className="w-4 h-4 mr-2" />
                                 Send Emails
                               </DropdownMenuItem>
+                              </PermissionGate>
                             )}
                             <DropdownMenuSeparator />
+                            <PermissionGate permission="delete-announcements">
                             <DropdownMenuItem onClick={() => handleDelete(announcement)} className="text-red-600">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
+                            </PermissionGate>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
@@ -478,6 +493,7 @@ const AnnouncementsPage = () => {
       </Card>
 
       {/* Modals */}
+      <PermissionGate permission={selectedAnnouncement ? 'edit-announcements' : 'create-announcements'}>
       <AnnouncementFormModal
         isOpen={showFormModal}
         onClose={() => {
@@ -491,6 +507,7 @@ const AnnouncementsPage = () => {
         }}
         announcement={selectedAnnouncement}
       />
+      </PermissionGate>
 
       <AnnouncementDetailsModal
         isOpen={showDetailsModal}
@@ -519,9 +536,11 @@ const AnnouncementsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-announcements">
             <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

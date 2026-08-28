@@ -24,6 +24,7 @@ import { IntegrationSettingsSection } from '../components/integration-settings-s
 import { MaintenanceSettingsSection } from '../components/maintenance-settings-section';
 import { BillingInterfaceSection } from '../components/billing-interface-section';
 import { AdminNotificationEmailsSection } from '../components/admin-notification-emails-section';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -41,6 +42,7 @@ const SettingsPage = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <PermissionGate permission="edit-system-settings">
           <Button
             variant="outline"
             className="flex items-center gap-2"
@@ -48,6 +50,7 @@ const SettingsPage = () => {
             <RefreshCw className="w-4 h-4" />
             Reset
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -68,8 +71,10 @@ const SettingsPage = () => {
         </CardContent>
       </Card>
 
-      <BillingInterfaceSection />
-      <AdminNotificationEmailsSection />
+      <PermissionGate permission="edit-system-settings">
+        <BillingInterfaceSection />
+        <AdminNotificationEmailsSection />
+      </PermissionGate>
 
       {/* Settings Tabs */}
       <Card>
@@ -114,35 +119,35 @@ const SettingsPage = () => {
 
             <div className="p-6">
               <TabsContent value="general" className="mt-0">
-                <GeneralSettingsSection />
+                <PermissionGate permission="edit-system-settings"><GeneralSettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="security" className="mt-0">
-                <SecuritySettingsSection />
+                <PermissionGate permission="edit-system-settings"><SecuritySettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="email" className="mt-0">
-                <EmailSettingsSection />
+                <PermissionGate permission="edit-system-settings"><EmailSettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="system" className="mt-0">
-                <SystemSettingsSection />
+                <PermissionGate permission="edit-system-settings"><SystemSettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="branding" className="mt-0">
-                <BrandingSettingsSection />
+                <PermissionGate permission="edit-system-settings"><BrandingSettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="features" className="mt-0">
-                <FeatureFlagsSection />
+                <PermissionGate permission="edit-system-settings"><FeatureFlagsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="integrations" className="mt-0">
-                <IntegrationSettingsSection />
+                <PermissionGate permission="edit-system-settings"><IntegrationSettingsSection /></PermissionGate>
               </TabsContent>
 
               <TabsContent value="maintenance" className="mt-0">
-                <MaintenanceSettingsSection />
+                <PermissionGate permission="edit-system-settings"><MaintenanceSettingsSection /></PermissionGate>
               </TabsContent>
             </div>
           </Tabs>

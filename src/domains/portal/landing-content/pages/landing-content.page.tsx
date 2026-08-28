@@ -17,6 +17,7 @@ import { TrustSectionForm } from '../components/trust-section-form';
 import { FeaturesSectionForm } from '../components/features-section-form';
 import { TestimonialsSectionForm } from '../components/testimonials-section-form';
 import { MetricsSectionForm } from '../components/metrics-section-form';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const LandingContentPage = () => {
   const [activeTab, setActiveTab] = useState('hero');
@@ -78,30 +79,30 @@ const LandingContentPage = () => {
 
               <div className="p-6">
                 <TabsContent value="hero" className="mt-0">
-                  <HeroSectionForm
+                  <PermissionGate permission="edit-landing-content"><HeroSectionForm
                     data={content?.sections?.hero?.content}
-                  />
+                  /></PermissionGate>
                 </TabsContent>
                 <TabsContent value="trust" className="mt-0">
-                  <TrustSectionForm
+                  <PermissionGate permission="edit-landing-content"><TrustSectionForm
                     data={content?.sections?.trust?.content}
                     companies={content?.trusted_companies || []}
-                  />
+                  /></PermissionGate>
                 </TabsContent>
                 <TabsContent value="features" className="mt-0">
-                  <FeaturesSectionForm
+                  <PermissionGate permission="edit-landing-content"><FeaturesSectionForm
                     data={content?.sections?.features?.content}
-                  />
+                  /></PermissionGate>
                 </TabsContent>
                 <TabsContent value="testimonials" className="mt-0">
-                  <TestimonialsSectionForm
+                  <PermissionGate permission="edit-landing-content"><TestimonialsSectionForm
                     data={content?.sections?.testimonials?.content}
-                  />
+                  /></PermissionGate>
                 </TabsContent>
                 <TabsContent value="metrics" className="mt-0">
-                  <MetricsSectionForm
+                  <PermissionGate permission="edit-landing-content"><MetricsSectionForm
                     data={content?.sections?.metrics?.content}
-                  />
+                  /></PermissionGate>
                 </TabsContent>
               </div>
             </Tabs>

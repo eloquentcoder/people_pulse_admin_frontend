@@ -23,6 +23,7 @@ import {
   Eye,
   AlertCircle,
 } from 'lucide-react';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface AnnouncementDetailsModalProps {
   isOpen: boolean;
@@ -81,15 +82,17 @@ export const AnnouncementDetailsModal = ({
               </DialogDescription>
             </div>
             <div className="flex items-center gap-2 ml-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onEdit(announcement)}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <Edit className="w-4 h-4 mr-1" />
-                Edit
-              </Button>
+              <PermissionGate permission="edit-announcements">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(announcement)}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  Edit
+                </Button>
+              </PermissionGate>
             </div>
           </div>
         </DialogHeader>
@@ -244,23 +247,27 @@ export const AnnouncementDetailsModal = ({
                 </Button>
               )}
               {announcement.status === 'published' && (
-                <Button
-                  variant="outline"
-                  onClick={() => onUnpublish(announcement)}
-                  className="text-orange-600 hover:text-orange-700"
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Unpublish
-                </Button>
+                <PermissionGate permission="edit-announcements">
+                  <Button
+                    variant="outline"
+                    onClick={() => onUnpublish(announcement)}
+                    className="text-orange-600 hover:text-orange-700"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Unpublish
+                  </Button>
+                </PermissionGate>
               )}
               {announcement.status === 'published' && announcement.send_email && !announcement.email_sent && (
-                <Button
-                  onClick={() => onSendEmails(announcement)}
-                  className="bg-[#4469e5] hover:bg-[#4469e5]/90"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Emails
-                </Button>
+                <PermissionGate permission="edit-announcements">
+                  <Button
+                    onClick={() => onSendEmails(announcement)}
+                    className="bg-[#4469e5] hover:bg-[#4469e5]/90"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Emails
+                  </Button>
+                </PermissionGate>
               )}
             </div>
             <Button variant="outline" onClick={onClose}>

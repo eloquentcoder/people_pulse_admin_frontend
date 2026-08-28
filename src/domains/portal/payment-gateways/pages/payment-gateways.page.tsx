@@ -51,6 +51,7 @@ import type { PaymentGateway } from '../models/payment-gateway.model';
 import { PaymentGatewayFormModal } from '../components/payment-gateway-form-modal';
 import { PaymentGatewayDetailsModal } from '../components/payment-gateway-details-modal';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const PaymentGatewaysPage = () => {
   const [filters, setFilters] = useState<PaymentGatewayFilters>({
@@ -203,6 +204,7 @@ const PaymentGatewaysPage = () => {
             <RefreshCw className="w-4 h-4" />
             Refresh
           </Button>
+          <PermissionGate permission="create-payment-gateways">
           <Button 
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -210,6 +212,7 @@ const PaymentGatewaysPage = () => {
             <Plus className="w-4 h-4" />
             Add Gateway
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -483,6 +486,7 @@ const PaymentGatewaysPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
+                        <PermissionGate permission="edit-payment-gateways">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -494,7 +498,9 @@ const PaymentGatewaysPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                         {!gateway.is_default && (
+                          <PermissionGate permission="edit-payment-gateways">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -504,8 +510,10 @@ const PaymentGatewaysPage = () => {
                           >
                             <Star className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
                         {gateway.is_active ? (
+                          <PermissionGate permission="edit-payment-gateways">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -514,7 +522,9 @@ const PaymentGatewaysPage = () => {
                           >
                             <XCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         ) : (
+                          <PermissionGate permission="edit-payment-gateways">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -523,7 +533,9 @@ const PaymentGatewaysPage = () => {
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
+                        <PermissionGate permission="delete-payment-gateways">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -535,6 +547,7 @@ const PaymentGatewaysPage = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>
@@ -551,6 +564,7 @@ const PaymentGatewaysPage = () => {
                           </p>
                         </div>
                         {!filters.search && (
+                          <PermissionGate permission="create-payment-gateways">
                           <Button 
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2"
@@ -558,6 +572,7 @@ const PaymentGatewaysPage = () => {
                             <Plus className="w-4 h-4" />
                             Add Gateway
                           </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     </td>
@@ -647,6 +662,7 @@ const PaymentGatewaysPage = () => {
       </Card>
 
       {/* Payment Gateway Form Modal */}
+      <PermissionGate permission={showEditModal ? 'edit-payment-gateways' : 'create-payment-gateways'}>
       <PaymentGatewayFormModal
         isOpen={showAddModal || showEditModal}
         onClose={() => {
@@ -662,6 +678,7 @@ const PaymentGatewaysPage = () => {
         }}
         gateway={selectedGateway}
       />
+      </PermissionGate>
 
       {/* Payment Gateway Details Modal */}
       <PaymentGatewayDetailsModal
@@ -690,12 +707,14 @@ const PaymentGatewaysPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-payment-gateways">
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground"
             >
               Delete Gateway
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -704,4 +723,3 @@ const PaymentGatewaysPage = () => {
 };
 
 export default PaymentGatewaysPage;
-

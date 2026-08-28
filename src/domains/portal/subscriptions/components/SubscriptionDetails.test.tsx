@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock('@/common/components/permission-gate', () => ({
+  PermissionGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 import { SubscriptionDetails } from "./SubscriptionDetails";
 import type { Subscription } from "../types";
 

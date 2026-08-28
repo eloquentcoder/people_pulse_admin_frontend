@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/common/components/ui/alert-dialog'
 import { toast } from 'sonner'
+import { PermissionGate } from '@/common/components/permission-gate'
 import {
   useGetRolesQuery,
   useGetRoleQuery,
@@ -257,13 +258,15 @@ const RolesPermissionsPage = () => {
         <div>
           <h1 className="text-3xl font-bold">Roles & Permissions</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage platform roles and their permissions
+            Manage platform roles and permissions for PeoplePulse operators. Organization roles are managed within each organization.
           </p>
         </div>
         {tab === 'roles' && (
-          <Button onClick={handleCreateRole} style={{ backgroundColor: '#4469e5' }} className="text-white">
-            <Plus className="h-4 w-4 mr-2" /> Create Role
-          </Button>
+          <PermissionGate permission="roles.create">
+            <Button onClick={handleCreateRole} style={{ backgroundColor: '#4469e5' }} className="text-white">
+              <Plus className="h-4 w-4 mr-2" /> Create Platform Role
+            </Button>
+          </PermissionGate>
         )}
       </div>
 
@@ -410,14 +413,16 @@ const RolesPermissionsPage = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleManagePermissions(role)}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
-                            {role.permissions_count || 0} permissions
-                          </Button>
+                          <PermissionGate permission="roles.permissions">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleManagePermissions(role)}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              {role.permissions_count || 0} permissions
+                            </Button>
+                          </PermissionGate>
                         </TableCell>
                         <TableCell>
                           <span className="text-sm font-medium">{role.users_count || 0} users</span>
@@ -432,33 +437,39 @@ const RolesPermissionsPage = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCloneRole(role)}
-                              title="Clone role"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
+                            <PermissionGate permission="roles.create">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCloneRole(role)}
+                                title="Clone role"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </PermissionGate>
                             {!role.is_system_role && (
                               <>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEditRole(role)}
-                                  title="Edit role"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteRole(role)}
-                                  title="Delete role"
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <PermissionGate permission="roles.edit">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleEditRole(role)}
+                                    title="Edit role"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </PermissionGate>
+                                <PermissionGate permission="roles.delete">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteRole(role)}
+                                    title="Delete role"
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </PermissionGate>
                               </>
                             )}
                           </div>
@@ -635,6 +646,7 @@ const RolesPermissionsPage = () => {
             <Button variant="outline" onClick={() => setRoleModalOpen(false)}>
               Cancel
             </Button>
+            <PermissionGate permission={selectedRole ? 'roles.edit' : 'roles.create'}>
             <Button
               onClick={handleSaveRole}
               disabled={creating || updating}
@@ -644,6 +656,7 @@ const RolesPermissionsPage = () => {
               {(creating || updating) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {selectedRole ? 'Update' : 'Create'}
             </Button>
+            </PermissionGate>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -735,6 +748,7 @@ const RolesPermissionsPage = () => {
                 <Button variant="outline" onClick={() => setPermissionModalOpen(false)}>
                   Cancel
                 </Button>
+                <PermissionGate permission="roles.permissions">
                 <Button
                   onClick={handleSavePermissions}
                   disabled={updatingPermissions || selectedRole?.is_system_role}
@@ -744,6 +758,7 @@ const RolesPermissionsPage = () => {
                   {updatingPermissions && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   Save Permissions
                 </Button>
+                </PermissionGate>
               </div>
             </div>
           </DialogFooter>
@@ -784,6 +799,7 @@ const RolesPermissionsPage = () => {
             <Button variant="outline" onClick={() => setCloneModalOpen(false)}>
               Cancel
             </Button>
+            <PermissionGate permission="roles.create">
             <Button
               onClick={handleConfirmClone}
               disabled={cloning}
@@ -793,6 +809,7 @@ const RolesPermissionsPage = () => {
               {cloning && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Clone Role
             </Button>
+            </PermissionGate>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -814,6 +831,7 @@ const RolesPermissionsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setRoleToDelete(null)}>Cancel</AlertDialogCancel>
+            <PermissionGate permission="roles.delete">
             <AlertDialogAction
               onClick={confirmDeleteRole}
               disabled={deleting}
@@ -822,6 +840,7 @@ const RolesPermissionsPage = () => {
               {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

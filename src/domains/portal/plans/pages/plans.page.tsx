@@ -45,6 +45,7 @@ import {
   type PlanFilters
 } from '../apis/plans.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const PlansPage = () => {
   const [filters, setFilters] = useState<PlanFilters>({
@@ -166,13 +167,12 @@ const PlansPage = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={handleAdd}
-            className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
-          >
-            <Plus className="w-4 h-4" />
-            Add Plan
-          </Button>
+          <PermissionGate permission="create-plans">
+            <Button onClick={handleAdd} className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90">
+              <Plus className="w-4 h-4" />
+              Add Plan
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -391,13 +391,12 @@ const PlansPage = () => {
                           </p>
                         </div>
                         {!filters.search && (
-                          <Button 
-                            onClick={handleAdd}
-                            className="flex items-center gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Add Plan
-                          </Button>
+                          <PermissionGate permission="create-plans">
+                            <Button onClick={handleAdd} className="flex items-center gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add Plan
+                            </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     </td>
@@ -475,27 +474,22 @@ const PlansPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
+                            aria-label="View plan"
                             onClick={() => handleView(plan)}
                             className="hover:bg-blue-50 hover:text-blue-600"
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleEdit(plan)}
-                            className="hover:bg-green-50 hover:text-green-600"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(plan)}
-                            className="hover:bg-red-50 hover:text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <PermissionGate permission="edit-plans">
+                            <Button variant="ghost" size="sm" aria-label="Edit plan" onClick={() => handleEdit(plan)} className="hover:bg-green-50 hover:text-green-600">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </PermissionGate>
+                          <PermissionGate permission="delete-plans">
+                            <Button variant="ghost" size="sm" aria-label="Delete plan" onClick={() => handleDelete(plan)} className="hover:bg-red-50 hover:text-red-600">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </PermissionGate>
                         </div>
                       </td>
                     </tr>
@@ -508,16 +502,18 @@ const PlansPage = () => {
       </Card>
 
       {/* Plan Form Modal */}
-      <PlanForm
-        open={showAddModal}
-        onClose={() => {
-          setShowAddModal(false);
-          setSelectedPlan(null);
-        }}
-        onSubmit={handleFormSubmit}
-        plan={selectedPlan}
-        loading={isLoading}
-      />
+      <PermissionGate permission={selectedPlan ? 'edit-plans' : 'create-plans'}>
+        <PlanForm
+          open={showAddModal}
+          onClose={() => {
+            setShowAddModal(false);
+            setSelectedPlan(null);
+          }}
+          onSubmit={handleFormSubmit}
+          plan={selectedPlan}
+          loading={isLoading}
+        />
+      </PermissionGate>
 
       {/* Plan Details Modal */}
       <PlanDetails
@@ -546,12 +542,11 @@ const PlansPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground"
-            >
-              Delete Plan
-            </AlertDialogAction>
+            <PermissionGate permission="delete-plans">
+              <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground">
+                Delete Plan
+              </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

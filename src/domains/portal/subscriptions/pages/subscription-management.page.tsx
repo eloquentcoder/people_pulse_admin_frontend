@@ -52,6 +52,7 @@ import {
 } from '@/common/components/ui/alert-dialog';
 import { toCreatePayload, toUpdatePayload } from '../utils/mapFormData';
 import { useGetOrganizationsQuery } from '@/domains/portal/organizations/apis/organization.api';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 // Format amount in Naira
 const formatNaira = (amount: number) => {
@@ -510,6 +511,7 @@ const SubscriptionManagementPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
+                        <PermissionGate permission="edit-subscriptions">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -522,7 +524,9 @@ const SubscriptionManagementPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                         {subscription.status === 'trial' && (
+                          <PermissionGate permission="edit-subscriptions">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -535,8 +539,10 @@ const SubscriptionManagementPage = () => {
                           >
                             <CalendarClock className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
                         {subscription.status === 'active' ? (
+                          <PermissionGate permission="cancel-subscriptions">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -546,7 +552,9 @@ const SubscriptionManagementPage = () => {
                           >
                             <XCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         ) : subscription.status === 'cancelled' ? (
+                          <PermissionGate permission="edit-subscriptions">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -556,7 +564,9 @@ const SubscriptionManagementPage = () => {
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         ) : null}
+                        <PermissionGate permission="delete-subscriptions">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -566,6 +576,7 @@ const SubscriptionManagementPage = () => {
                         >
                           <XCircle className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>
@@ -582,6 +593,7 @@ const SubscriptionManagementPage = () => {
                           </p>
                         </div>
                         {!filters.search && (
+                          <PermissionGate permission="create-subscriptions">
                           <Button 
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2"
@@ -589,6 +601,7 @@ const SubscriptionManagementPage = () => {
                             <Plus className="w-4 h-4" />
                             Add Subscription
                           </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     </td>
@@ -692,6 +705,7 @@ const SubscriptionManagementPage = () => {
       />
 
       {/* Create / edit modal */}
+      <PermissionGate permission={showEditModal ? 'edit-subscriptions' : 'create-subscriptions'}>
       <SubscriptionForm
         open={showAddModal || showEditModal}
         onClose={closeModals}
@@ -700,8 +714,10 @@ const SubscriptionManagementPage = () => {
         loading={isUpdating || isCreating}
         organizations={organizations}
       />
+      </PermissionGate>
 
       {/* Extend trial modal */}
+      <PermissionGate permission="edit-subscriptions">
       <ExtendTrialDialog
         open={showExtendTrialModal}
         onClose={closeModals}
@@ -709,6 +725,7 @@ const SubscriptionManagementPage = () => {
         onConfirm={handleExtendTrial}
         loading={isUpdating}
       />
+      </PermissionGate>
 
       {/* Disable / delete confirmation */}
       <AlertDialog
@@ -730,9 +747,11 @@ const SubscriptionManagementPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission={confirmAction?.type === 'delete' ? 'delete-subscriptions' : 'cancel-subscriptions'}>
             <AlertDialogAction onClick={runConfirm}>
               {confirmAction?.type === 'delete' ? 'Delete' : 'Disable'}
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

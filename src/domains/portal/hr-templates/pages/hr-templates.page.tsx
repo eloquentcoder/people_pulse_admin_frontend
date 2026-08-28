@@ -52,6 +52,7 @@ import {
   useDuplicateHRTemplateMutation,
 } from '../apis/hr-template.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const HRTemplatesPage = () => {
   const [activeTab, setActiveTab] = useState<'templates' | 'categories'>('templates');
@@ -194,6 +195,7 @@ const HRTemplatesPage = () => {
             Refresh
           </Button>
           {activeTab === 'templates' ? (
+            <PermissionGate permission={activeTab === 'templates' ? 'create-hr-templates' : 'create-hr-templates'}>
             <Button
               onClick={handleAddTemplate}
               className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -201,7 +203,9 @@ const HRTemplatesPage = () => {
               <Plus className="w-4 h-4" />
               New Template
             </Button>
+            </PermissionGate>
           ) : (
+            <PermissionGate permission="create-hr-templates">
             <Button
               onClick={handleAddCategory}
               className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -209,6 +213,7 @@ const HRTemplatesPage = () => {
               <Plus className="w-4 h-4" />
               New Category
             </Button>
+            </PermissionGate>
           )}
         </div>
       </div>
@@ -392,6 +397,7 @@ const HRTemplatesPage = () => {
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Button>
+                                <PermissionGate permission="edit-hr-templates">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -400,6 +406,8 @@ const HRTemplatesPage = () => {
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
+                                </PermissionGate>
+                                <PermissionGate permission="edit-hr-templates">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -408,6 +416,8 @@ const HRTemplatesPage = () => {
                                 >
                                   <Copy className="w-4 h-4" />
                                 </Button>
+                                </PermissionGate>
+                                <PermissionGate permission="delete-hr-templates">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -416,6 +426,7 @@ const HRTemplatesPage = () => {
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
+                                </PermissionGate>
                               </div>
                             </td>
                           </tr>
@@ -430,10 +441,12 @@ const HRTemplatesPage = () => {
                           {filters.search ? 'Try adjusting your search criteria' : 'Get started by creating your first template'}
                         </p>
                         {!filters.search && (
+                          <PermissionGate permission="create-hr-templates">
                           <Button onClick={handleAddTemplate} className="flex items-center gap-2 mx-auto">
                             <Plus className="w-4 h-4" />
                             New Template
                           </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     )}
@@ -510,6 +523,7 @@ const HRTemplatesPage = () => {
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
+                              <PermissionGate permission="edit-hr-templates">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -518,6 +532,8 @@ const HRTemplatesPage = () => {
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
+                              </PermissionGate>
+                              <PermissionGate permission="delete-hr-templates">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -526,6 +542,7 @@ const HRTemplatesPage = () => {
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
+                              </PermissionGate>
                             </div>
                           </div>
                         </CardContent>
@@ -536,10 +553,12 @@ const HRTemplatesPage = () => {
                         <FolderTree className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No categories found</h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-4">Get started by creating your first category</p>
+                        <PermissionGate permission="create-hr-templates">
                         <Button onClick={handleAddCategory} className="flex items-center gap-2 mx-auto">
                           <Plus className="w-4 h-4" />
                           New Category
                         </Button>
+                        </PermissionGate>
                       </div>
                     )}
                   </div>
@@ -551,6 +570,7 @@ const HRTemplatesPage = () => {
       </Card>
 
       {/* Modals */}
+      <PermissionGate permission={selectedTemplate ? 'edit-hr-templates' : 'create-hr-templates'}>
       <HRTemplateFormModal
         isOpen={showTemplateModal}
         onClose={() => {
@@ -564,6 +584,7 @@ const HRTemplatesPage = () => {
         }}
         template={selectedTemplate}
       />
+      </PermissionGate>
 
       <HRTemplateDetailsModal
         isOpen={showTemplateDetails}
@@ -574,6 +595,7 @@ const HRTemplatesPage = () => {
         template={selectedTemplate}
       />
 
+      <PermissionGate permission={selectedCategory ? 'edit-hr-templates' : 'create-hr-templates'}>
       <CategoryFormModal
         isOpen={showCategoryModal}
         onClose={() => {
@@ -587,6 +609,7 @@ const HRTemplatesPage = () => {
         }}
         category={selectedCategory}
       />
+      </PermissionGate>
 
       {/* Delete Dialogs */}
       <AlertDialog open={deleteTemplateDialogOpen} onOpenChange={setDeleteTemplateDialogOpen}>
@@ -599,9 +622,11 @@ const HRTemplatesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-hr-templates">
             <AlertDialogAction onClick={handleConfirmDeleteTemplate} className="bg-red-600 hover:bg-red-700">
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -616,9 +641,11 @@ const HRTemplatesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-hr-templates">
             <AlertDialogAction onClick={handleConfirmDeleteCategory} className="bg-red-600 hover:bg-red-700">
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -627,5 +654,3 @@ const HRTemplatesPage = () => {
 };
 
 export default HRTemplatesPage;
-
-

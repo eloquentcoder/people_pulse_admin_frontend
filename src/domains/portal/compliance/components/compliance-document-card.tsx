@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/common/components/ui/card';
 import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
 import type { DocumentWithStatus, ComplianceDocumentStatus } from '../models/compliance.model';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface ComplianceDocumentCardProps {
   documentWithStatus: DocumentWithStatus;
@@ -120,6 +121,7 @@ export const ComplianceDocumentCard = ({
         {/* Review Actions */}
         {document.status === 'pending' && (
           <div className="flex gap-2 mt-2">
+            <PermissionGate permission="edit-compliance-review">
             <Button
               size="sm"
               className="flex-1 bg-green-600 hover:bg-green-700"
@@ -128,6 +130,8 @@ export const ComplianceDocumentCard = ({
               <CheckCircle className="h-4 w-4 mr-1" />
               Approve
             </Button>
+            </PermissionGate>
+            <PermissionGate permission="edit-compliance-review">
             <Button
               size="sm"
               variant="destructive"
@@ -137,6 +141,7 @@ export const ComplianceDocumentCard = ({
               <XCircle className="h-4 w-4 mr-1" />
               Reject
             </Button>
+            </PermissionGate>
           </div>
         )}
       </CardContent>

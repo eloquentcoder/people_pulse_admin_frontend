@@ -34,6 +34,7 @@ import {
   Link
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface PaymentGatewayDetailsModalProps {
   isOpen: boolean;
@@ -137,6 +138,7 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
             </div>
             <div className="flex items-center gap-2">
               {currentGateway.is_active ? (
+                <PermissionGate permission="edit-payment-gateways">
                 <Button
                   variant="outline"
                   size="sm"
@@ -146,7 +148,9 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
                   <XCircle className="w-4 h-4 mr-1" />
                   Deactivate
                 </Button>
+                </PermissionGate>
               ) : (
+                <PermissionGate permission="edit-payment-gateways">
                 <Button
                   variant="outline"
                   size="sm"
@@ -156,8 +160,10 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Activate
                 </Button>
+                </PermissionGate>
               )}
               {!currentGateway.is_default && (
+                <PermissionGate permission="edit-payment-gateways">
                 <Button
                   variant="outline"
                   size="sm"
@@ -167,7 +173,9 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
                   <Star className="w-4 h-4 mr-1" />
                   Set Default
                 </Button>
+                </PermissionGate>
               )}
+              <PermissionGate permission="edit-payment-gateways">
               <Button
                 variant="outline"
                 size="sm"
@@ -177,6 +185,7 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>
+              </PermissionGate>
             </div>
           </div>
         </DialogHeader>
@@ -447,4 +456,3 @@ export const PaymentGatewayDetailsModal = ({ isOpen, onClose, onEdit, gateway }:
     </Dialog>
   );
 };
-

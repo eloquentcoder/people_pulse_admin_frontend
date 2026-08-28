@@ -37,6 +37,7 @@ import {
   Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface SupportTicketDetailsModalProps {
   isOpen: boolean;
@@ -164,6 +165,7 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
             </div>
             <div className="flex items-center gap-2">
               {currentTicket.status === 'open' && (
+                <PermissionGate permission="resolve-tickets">
                 <Button
                   variant="outline"
                   size="sm"
@@ -173,8 +175,10 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                   <Clock className="w-4 h-4 mr-1" />
                   In Progress
                 </Button>
+                </PermissionGate>
               )}
               {currentTicket.status !== 'resolved' && currentTicket.status !== 'closed' && (
+                <PermissionGate permission="resolve-tickets">
                 <Button
                   variant="outline"
                   size="sm"
@@ -184,8 +188,10 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                   <CheckCircle className="w-4 h-4 mr-1" />
                   Resolve
                 </Button>
+                </PermissionGate>
               )}
               {currentTicket.status === 'resolved' && (
+                <PermissionGate permission="resolve-tickets">
                 <Button
                   variant="outline"
                   size="sm"
@@ -195,7 +201,9 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                   <XCircle className="w-4 h-4 mr-1" />
                   Close
                 </Button>
+                </PermissionGate>
               )}
+              <PermissionGate permission="edit-tickets">
               <Button
                 variant="outline"
                 size="sm"
@@ -205,6 +213,7 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>
+              </PermissionGate>
             </div>
           </div>
         </DialogHeader>
@@ -412,6 +421,7 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                     </div>
                   )}
                 </div>
+                <PermissionGate permission="edit-tickets">
                 <Button
                   onClick={handleAddReply}
                   disabled={isAddingReply || !replyMessage.trim()}
@@ -429,6 +439,7 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
                     </>
                   )}
                 </Button>
+                </PermissionGate>
               </CardContent>
             </Card>
           </TabsContent>
@@ -446,4 +457,3 @@ export const SupportTicketDetailsModal = ({ isOpen, onClose, onEdit, ticket }: S
     </Dialog>
   );
 };
-

@@ -38,6 +38,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface UserDetailsModalProps {
   isOpen: boolean;
@@ -160,6 +161,7 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
             </div>
             <div className="flex items-center gap-2">
               {currentUser.is_active ? (
+                <PermissionGate permission="edit-users">
                 <Button
                   variant="outline"
                   size="sm"
@@ -169,7 +171,9 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
                   <UserX className="w-4 h-4 mr-1" />
                   Deactivate
                 </Button>
+                </PermissionGate>
               ) : (
+                <PermissionGate permission="edit-users">
                 <Button
                   variant="outline"
                   size="sm"
@@ -179,7 +183,9 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
                   <UserCheck className="w-4 h-4 mr-1" />
                   Activate
                 </Button>
+                </PermissionGate>
               )}
+              <PermissionGate permission="edit-users">
               <Button
                 variant="outline"
                 size="sm"
@@ -189,6 +195,7 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>
+              </PermissionGate>
             </div>
           </div>
         </DialogHeader>
@@ -386,6 +393,7 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
         </Tabs>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <PermissionGate permission="edit-users">
           <Button
             variant="outline"
             onClick={handleResetPassword}
@@ -394,6 +402,7 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
             <Key className="w-4 h-4 mr-1" />
             Reset Password
           </Button>
+          </PermissionGate>
           <Button
             variant="outline"
             onClick={onClose}
@@ -405,5 +414,4 @@ export const UserDetailsModal = ({ isOpen, onClose, onEdit, user }: UserDetailsM
     </Dialog>
   );
 };
-
 

@@ -37,6 +37,7 @@ import {
   type FeatureFilters
 } from '../apis/features.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const FeaturesPage = () => {
   const [filters, setFilters] = useState<FeatureFilters>({
@@ -153,6 +154,7 @@ const FeaturesPage = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <PermissionGate permission="create-features">
           <Button 
             onClick={handleAdd}
             className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -160,6 +162,7 @@ const FeaturesPage = () => {
             <Plus className="w-4 h-4" />
             Add Feature
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -252,6 +255,7 @@ const FeaturesPage = () => {
                   </p>
                 </div>
                 {!filters.search && (
+                  <PermissionGate permission="create-features">
                   <Button 
                     onClick={handleAdd}
                     className="flex items-center gap-2"
@@ -259,6 +263,7 @@ const FeaturesPage = () => {
                     <Plus className="w-4 h-4" />
                     Add Feature
                   </Button>
+                  </PermissionGate>
                 )}
               </div>
             </CardContent>
@@ -292,6 +297,7 @@ const FeaturesPage = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        <PermissionGate permission="edit-features">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -300,6 +306,8 @@ const FeaturesPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
+                        <PermissionGate permission="delete-features">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -308,6 +316,7 @@ const FeaturesPage = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       </div>
                     </div>
                   ))}
@@ -319,6 +328,7 @@ const FeaturesPage = () => {
       </div>
 
       {/* Feature Form Modal */}
+      <PermissionGate permission={selectedFeature ? 'edit-features' : 'create-features'}>
       <FeatureForm
         open={showAddModal}
         onClose={() => {
@@ -329,6 +339,7 @@ const FeaturesPage = () => {
         feature={selectedFeature}
         loading={isLoading}
       />
+      </PermissionGate>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -342,12 +353,14 @@ const FeaturesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-features">
             <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground"
             >
               Delete Feature
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

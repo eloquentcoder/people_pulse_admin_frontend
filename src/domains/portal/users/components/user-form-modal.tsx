@@ -50,7 +50,6 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const { data: organizationsData } = useGetOrganizationsQuery();
-  const { data: rolesData } = useGetRolesQuery();
 
   const isLoading = isCreating || isUpdating;
 
@@ -118,6 +117,11 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
     },
   });
 
+  const { data: rolesData } = useGetRolesQuery(
+    { organization_id: formik.values.organization_id },
+    { skip: !formik.values.organization_id },
+  );
+
   useEffect(() => {
     if (user && isOpen) {
       formik.setValues({
@@ -148,7 +152,7 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
             {user ? 'Edit User' : 'Create New User'}
           </DialogTitle>
           <DialogDescription>
-            {user ? 'Update user information and permissions.' : 'Add a new user to the platform.'}
+            {user ? 'Update organization user information and roles.' : 'Add an employee or organization administrator.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -237,7 +241,10 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
                   id="organization_id"
                   name="organization_id"
                   value={formik.values.organization_id}
-                  onChange={(e) => formik.setFieldValue('organization_id', Number(e.target.value))}
+                  onChange={(e) => {
+                    formik.setFieldValue('organization_id', Number(e.target.value));
+                    formik.setFieldValue('role_ids', []);
+                  }}
                   onBlur={formik.handleBlur}
                   disabled={isLoading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:text-white"
@@ -267,7 +274,6 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
                 >
                   <option value="employee">Employee</option>
                   <option value="organization_admin">Organization Admin</option>
-                  <option value="platform_admin">Platform Admin</option>
                 </select>
                 {formik.touched.user_type && formik.errors.user_type && (
                   <p className="text-sm text-destructive">{formik.errors.user_type}</p>
@@ -278,7 +284,7 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
 
           {/* Roles */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Roles & Permissions</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Organization Roles</h3>
             <div className="space-y-2">
               <Label>Assign Roles</Label>
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-h-48 overflow-y-auto">
@@ -377,4 +383,3 @@ export const UserFormModal = ({ isOpen, onClose, onSuccess, user }: UserFormModa
     </Dialog>
   );
 };
-
