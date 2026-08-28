@@ -16,6 +16,7 @@ import { AssignPlanModal } from './assign-plan-modal';
 import { BillingInterfaceToggle } from './billing-interface-toggle';
 import type { Organization } from '../models/organization.model';
 import type { Subscription } from '@/common/models/subscription.model';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface OrganizationSubscriptionTabProps {
   organization: Organization;
@@ -106,9 +107,11 @@ export const OrganizationSubscriptionTab = ({
             Manage the subscription plan for this organization.
           </p>
         </div>
+        <PermissionGate permission={hasActiveSubscription ? 'edit-subscriptions' : 'create-subscriptions'}>
         <Button onClick={() => setShowAssignModal(true)}>
           {hasActiveSubscription ? 'Change Plan' : 'Assign Plan'}
         </Button>
+        </PermissionGate>
       </div>
 
       <BillingInterfaceToggle
@@ -220,13 +223,16 @@ export const OrganizationSubscriptionTab = ({
                 This organization doesn't have an active subscription. Assign a plan to enable
                 access to platform features.
               </p>
+              <PermissionGate permission="create-subscriptions">
               <Button onClick={() => setShowAssignModal(true)}>Assign Plan</Button>
+              </PermissionGate>
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Assign Plan Modal */}
+      <PermissionGate permission={hasActiveSubscription ? 'edit-subscriptions' : 'create-subscriptions'}>
       <AssignPlanModal
         isOpen={showAssignModal}
         onClose={() => setShowAssignModal(false)}
@@ -237,6 +243,7 @@ export const OrganizationSubscriptionTab = ({
           onSubscriptionChange();
         }}
       />
+      </PermissionGate>
     </div>
   );
 };

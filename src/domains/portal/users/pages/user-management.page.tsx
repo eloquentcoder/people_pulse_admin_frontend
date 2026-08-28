@@ -42,6 +42,7 @@ import type { User, UserFilters } from '../models/user.model';
 import { UserFormModal } from '../components/user-form-modal';
 import { UserDetailsModal } from '../components/user-details-modal';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const UserManagementPage = () => {
   const [filters, setFilters] = useState<UserFilters>({
@@ -168,10 +169,10 @@ const UserManagementPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            User Management
+            Organization Users
           </h1>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
-            Manage platform users, roles, and permissions
+            Manage employees and organization administrators. Platform administrators are managed separately.
           </p>
         </div>
         <div className="flex gap-2">
@@ -183,13 +184,12 @@ const UserManagementPage = () => {
             <RefreshCw className="w-4 h-4" />
             Refresh
           </Button>
-          <Button 
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
-          >
-            <Plus className="w-4 h-4" />
-            Add User
-          </Button>
+          <PermissionGate permission="create-users">
+            <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90">
+              <Plus className="w-4 h-4" />
+              Add User
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -222,8 +222,8 @@ const UserManagementPage = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Platform Admins</p>
-                  <p className="text-2xl font-bold text-purple-600">{statsData.data.platform_admins}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Organization Admins</p>
+                  <p className="text-2xl font-bold text-purple-600">{statsData.data.organization_admins}</p>
                 </div>
                 <Shield className="w-8 h-8 text-purple-500" />
               </div>
@@ -287,7 +287,6 @@ const UserManagementPage = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
                 >
                   <option value="">All Types</option>
-                  <option value="platform_admin">Platform Admin</option>
                   <option value="organization_admin">Organization Admin</option>
                   <option value="employee">Employee</option>
                 </select>
@@ -442,7 +441,7 @@ const UserManagementPage = () => {
                     </td>
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-1">
-                        <Button 
+                        <Button aria-label="View user"
                           variant="ghost" 
                           size="sm"
                           onClick={() => {
@@ -453,44 +452,29 @@ const UserManagementPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowEditModal(true);
-                          }}
-                          className="hover:bg-green-50 hover:text-green-600"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
+                        <PermissionGate permission="edit-users">
+                          <Button variant="ghost" size="sm" aria-label="Edit user" onClick={() => { setSelectedUser(user); setShowEditModal(true); }} className="hover:bg-green-50 hover:text-green-600">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </PermissionGate>
                         {user.is_active ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeactivate(user.id)}
-                            className="hover:bg-orange-50 hover:text-orange-600"
-                          >
-                            <UserX className="w-4 h-4" />
-                          </Button>
+                          <PermissionGate permission="edit-users">
+                            <Button variant="ghost" size="sm" aria-label="Deactivate user" onClick={() => handleDeactivate(user.id)} className="hover:bg-orange-50 hover:text-orange-600">
+                              <UserX className="w-4 h-4" />
+                            </Button>
+                          </PermissionGate>
                         ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleActivate(user.id)}
-                            className="hover:bg-green-50 hover:text-green-600"
-                          >
-                            <UserCheck className="w-4 h-4" />
-                          </Button>
+                          <PermissionGate permission="edit-users">
+                            <Button variant="ghost" size="sm" aria-label="Activate user" onClick={() => handleActivate(user.id)} className="hover:bg-green-50 hover:text-green-600">
+                              <UserCheck className="w-4 h-4" />
+                            </Button>
+                          </PermissionGate>
                         )}
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDelete(user.id)}
-                          className="hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <PermissionGate permission="delete-users">
+                          <Button variant="ghost" size="sm" aria-label="Delete user" onClick={() => handleDelete(user.id)} className="hover:bg-red-50 hover:text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>
@@ -507,13 +491,12 @@ const UserManagementPage = () => {
                           </p>
                         </div>
                         {!filters.search && (
-                          <Button 
-                            onClick={() => setShowAddModal(true)}
-                            className="flex items-center gap-2"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Add User
-                          </Button>
+                          <PermissionGate permission="create-users">
+                            <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add User
+                            </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     </td>
@@ -603,21 +586,23 @@ const UserManagementPage = () => {
       </Card>
 
       {/* User Form Modal */}
-      <UserFormModal
-        isOpen={showAddModal || showEditModal}
-        onClose={() => {
-          setShowAddModal(false);
-          setShowEditModal(false);
-          setSelectedUser(null);
-        }}
-        onSuccess={() => {
-          refetch();
-          setShowAddModal(false);
-          setShowEditModal(false);
-          setSelectedUser(null);
-        }}
-        user={selectedUser}
-      />
+      <PermissionGate permission={showEditModal ? 'edit-users' : 'create-users'}>
+        <UserFormModal
+          isOpen={showAddModal || showEditModal}
+          onClose={() => {
+            setShowAddModal(false);
+            setShowEditModal(false);
+            setSelectedUser(null);
+          }}
+          onSuccess={() => {
+            refetch();
+            setShowAddModal(false);
+            setShowEditModal(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+        />
+      </PermissionGate>
 
       {/* User Details Modal */}
       <UserDetailsModal

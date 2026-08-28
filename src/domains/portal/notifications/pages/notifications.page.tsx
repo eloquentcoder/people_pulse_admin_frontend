@@ -50,6 +50,7 @@ import {
 } from '../apis/notification.api';
 import type { Notification, NotificationFilters } from '../models/notification.model';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const NotificationsPage = () => {
   const [filters, setFilters] = useState<NotificationFilters>({
@@ -237,6 +238,7 @@ const NotificationsPage = () => {
             Refresh
           </Button>
           {notificationsData?.data?.data && notificationsData.data.data.length > 0 && (
+            <PermissionGate permission="edit-notifications">
             <Button
               variant="outline"
               onClick={handleMarkAllAsRead}
@@ -245,6 +247,7 @@ const NotificationsPage = () => {
               <CheckCheck className="w-4 h-4" />
               Mark All Read
             </Button>
+            </PermissionGate>
           )}
         </div>
       </div>
@@ -392,6 +395,7 @@ const NotificationsPage = () => {
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <PermissionGate permission="edit-notifications">
                 <Button
                   variant="outline"
                   size="sm"
@@ -401,6 +405,8 @@ const NotificationsPage = () => {
                   <CheckCheck className="w-4 h-4" />
                   Mark as Read
                 </Button>
+                </PermissionGate>
+                <PermissionGate permission="delete-notifications">
                 <Button
                   variant="outline"
                   size="sm"
@@ -410,6 +416,7 @@ const NotificationsPage = () => {
                   <Trash2 className="w-4 h-4" />
                   Delete
                 </Button>
+                </PermissionGate>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -538,6 +545,7 @@ const NotificationsPage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       {isRead ? (
+                        <PermissionGate permission="edit-notifications">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -547,7 +555,9 @@ const NotificationsPage = () => {
                         >
                           <EyeOff className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       ) : (
+                        <PermissionGate permission="edit-notifications">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -557,7 +567,9 @@ const NotificationsPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       )}
+                      <PermissionGate permission="delete-notifications">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -567,6 +579,7 @@ const NotificationsPage = () => {
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                      </PermissionGate>
                     </div>
                   </div>
                 </div>
@@ -678,12 +691,14 @@ const NotificationsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-notifications">
             <AlertDialogAction
               onClick={handleDeleteSelected}
               className="bg-destructive text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -692,4 +707,3 @@ const NotificationsPage = () => {
 };
 
 export default NotificationsPage;
-

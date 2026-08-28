@@ -14,6 +14,7 @@ import { AuditLogStatsCards } from '../components/audit-log-stats';
 import { AuditLogFiltersBar } from '../components/audit-log-filters';
 import { AuditLogTable } from '../components/audit-log-table';
 import { AuditLogDetailModal } from '../components/audit-log-detail-modal';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const DEFAULT_FILTERS: AuditLogFilters = { per_page: 15, page: 1 };
 
@@ -71,10 +72,12 @@ const AuditLogsPage = () => {
             <RefreshCw className={`w-4 h-4 mr-1 ${isFetching ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          <PermissionGate permission="export-audit-logs">
           <Button size="sm" onClick={handleExport} disabled={isExporting}>
             <Download className="w-4 h-4 mr-1" />
             Export CSV
           </Button>
+          </PermissionGate>
         </div>
       </div>
 

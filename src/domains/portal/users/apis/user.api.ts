@@ -125,8 +125,11 @@ export const userApi = createApi({
     }),
 
     // Get roles
-    getRoles: builder.query<ApiResponse<Role[]>, void>({
-      query: () => '/roles',
+    getRoles: builder.query<ApiResponse<Role[]>, { organization_id: number }>({
+      query: ({ organization_id }) => ({
+        url: '/roles',
+        params: { organization_id },
+      }),
       providesTags: ['Role'],
     }),
 
@@ -152,4 +155,3 @@ export const {
   useGetRolesQuery,
   useGetUserActivityLogsQuery,
 } = userApi;
-

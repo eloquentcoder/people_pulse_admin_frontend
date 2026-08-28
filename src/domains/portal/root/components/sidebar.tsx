@@ -37,7 +37,7 @@ interface NavItem {
     permission?: string;
 }
 
-const navItemsConfig: NavItem[] = [
+export const navItemsConfig: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -54,7 +54,7 @@ const navItemsConfig: NavItem[] = [
         title: 'Compliance Review',
         href: '/compliance',
         icon: FileCheck,
-        permission: 'view-organizations',
+        permission: 'view-compliance-review',
     },
     {
         title: 'Subscriptions',
@@ -63,7 +63,7 @@ const navItemsConfig: NavItem[] = [
         permission: 'view-subscriptions',
     },
     {
-        title: 'Users',
+        title: 'Organization Users',
         href: '/users',
         icon: Users,
         permission: 'view-all-users',
@@ -78,13 +78,13 @@ const navItemsConfig: NavItem[] = [
         title: 'Platform Admins',
         href: '/platform-admins',
         icon: ShieldCheck,
-        permission: 'view-all-users',
+        permission: 'view-platform-admins',
     },
     {
         title: 'Email Templates',
         href: '/hr-templates',
         icon: ClipboardList,
-        permission: 'view-system-settings',
+        permission: 'view-hr-templates',
     },
     {
         title: 'Plans',
@@ -96,7 +96,7 @@ const navItemsConfig: NavItem[] = [
         title: 'Features',
         href: '/features',
         icon: Tag,
-        permission: 'manage-feature-flags',
+        permission: 'view-features',
     },
     {
         title: 'Analytics',
@@ -121,19 +121,19 @@ const navItemsConfig: NavItem[] = [
         title: 'Demo Requests',
         href: '/demo-requests',
         icon: CalendarDays,
-        permission: 'view-system-settings',
+        permission: 'view-demo-requests',
     },
     {
         title: 'Announcements',
         href: '/announcements',
         icon: Megaphone,
-        permission: 'view-system-settings',
+        permission: 'view-announcements',
     },
     {
         title: 'Landing Content',
         href: '/landing-content',
         icon: Globe,
-        permission: 'view-system-settings',
+        permission: 'view-landing-content',
     },
     {
         title: 'Audit Log',
@@ -145,7 +145,7 @@ const navItemsConfig: NavItem[] = [
         title: 'Notifications',
         href: '/notifications',
         icon: Bell,
-        permission: 'view-system-settings',
+        permission: 'view-notifications',
     },
     {
         title: 'Settings',
@@ -154,6 +154,17 @@ const navItemsConfig: NavItem[] = [
         permission: 'view-system-settings',
     },
 ];
+
+export function getVisibleNavItems(user: Parameters<typeof canAccess>[0], openTicketsCount = 0) {
+    return navItemsConfig
+        .filter(item => !item.permission || canAccess(user, item.permission))
+        .map(item => ({
+            ...item,
+            badge: item.badgeKey === 'openTickets' && openTicketsCount > 0
+                ? openTicketsCount.toString()
+                : undefined,
+        }));
+}
 
 export const Sidebar = () => {
     const { isOpen, close } = useSidebar();
@@ -166,12 +177,7 @@ export const Sidebar = () => {
 
     // Build nav items with dynamic badges
     const navItems = useMemo(() => {
-        return navItemsConfig.filter(item => !item.permission || canAccess(user, item.permission)).map(item => ({
-            ...item,
-            badge: item.badgeKey === 'openTickets' && openTicketsCount > 0
-                ? openTicketsCount.toString()
-                : undefined
-        }));
+        return getVisibleNavItems(user, openTicketsCount);
     }, [openTicketsCount, user]);
 
     // Close sidebar on route change (mobile)

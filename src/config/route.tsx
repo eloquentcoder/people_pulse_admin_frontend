@@ -82,7 +82,7 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'platform-admins',
-                element: gated('view-all-users', <PlatformAdminsPage />),
+                element: gated('view-platform-admins', <PlatformAdminsPage />),
             },
             {
                 path: 'plans',
@@ -90,11 +90,11 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'features',
-                element: gated('manage-feature-flags', <FeaturesPage />),
+                element: gated('view-features', <FeaturesPage />),
             },
             {
                 path: 'ai-models',
-                element: <div className="text-2xl font-bold">AI Models</div>,
+                element: gated('view-ai-models', <div className="text-2xl font-bold">AI Models</div>),
             },
             {
                 path: 'analytics',
@@ -110,7 +110,7 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'notifications',
-                element: gated('view-system-settings', <NotificationsPage />),
+                element: gated('view-notifications', <NotificationsPage />),
             },
             {
                 path: 'settings',
@@ -122,7 +122,7 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'hr-templates',
-                element: gated('view-system-settings', <HRTemplatesPage />),
+                element: gated('view-hr-templates', <HRTemplatesPage />),
             },
             {
                 path: 'profile',
@@ -130,23 +130,23 @@ export const routes = createBrowserRouter([
             },
             {
                 path: 'announcements',
-                element: gated('view-system-settings', <AnnouncementsPage />),
+                element: gated('view-announcements', <AnnouncementsPage />),
             },
             {
                 path: 'landing-content',
-                element: gated('view-system-settings', <LandingContentPage />),
+                element: gated('view-landing-content', <LandingContentPage />),
             },
             {
                 path: 'compliance',
-                element: gated('view-organizations', <ComplianceReviewPage />),
+                element: gated('view-compliance-review', <ComplianceReviewPage />),
             },
             {
                 path: 'compliance/organizations/:id',
-                element: gated('view-organizations', <OrganizationComplianceDetailPage />),
+                element: gated('view-compliance-review', <OrganizationComplianceDetailPage />),
             },
             {
                 path: 'demo-requests',
-                element: gated('view-system-settings', <DemoRequestsPage />),
+                element: gated('view-demo-requests', <DemoRequestsPage />),
             },
             {
                 path: 'audit-logs',

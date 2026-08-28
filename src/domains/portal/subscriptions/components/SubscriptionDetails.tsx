@@ -9,6 +9,7 @@ import { Badge } from '@/common/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/common/components/ui/card';
 import { Separator } from '@/common/components/ui/separator';
 import { Button } from '@/common/components/ui/button';
+import { PermissionGate } from '@/common/components/permission-gate';
 import { Subscription } from '../types';
 import {
   Banknote,
@@ -157,19 +158,25 @@ export function SubscriptionDetails({
             </div>
             <div className="flex gap-2">
               {onEdit && (
+                <PermissionGate permission="edit-subscriptions">
                 <Button variant="outline" onClick={() => onEdit(subscription)}>
                   Edit
                 </Button>
+                </PermissionGate>
               )}
               {canCancel && onCancel && (
+                <PermissionGate permission="cancel-subscriptions">
                 <Button variant="destructive" onClick={() => onCancel(subscription)}>
                   Cancel
                 </Button>
+                </PermissionGate>
               )}
               {canRenew && onRenew && (
+                <PermissionGate permission="edit-subscriptions">
                 <Button onClick={() => onRenew(subscription)}>
                   Renew
                 </Button>
+                </PermissionGate>
               )}
             </div>
           </div>

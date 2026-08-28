@@ -6,6 +6,7 @@ import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
 import { useOnboardAdminMutation } from '../apis/organization.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface OnboardAdminModalProps {
   isOpen: boolean;
@@ -172,6 +173,7 @@ export const OnboardAdminModal = ({ isOpen, onClose, onSuccess, organizationId }
 
           {/* Form Actions */}
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <PermissionGate permission="create-organizations">
             <Button
               type="button"
               variant="outline"
@@ -180,6 +182,7 @@ export const OnboardAdminModal = ({ isOpen, onClose, onSuccess, organizationId }
             >
               Cancel
             </Button>
+            </PermissionGate>
             <Button
               type="submit"
               disabled={isLoading}

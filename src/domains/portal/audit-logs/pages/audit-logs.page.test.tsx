@@ -81,6 +81,10 @@ vi.mock('../apis/audit-logs.api', () => ({
 
 import AuditLogsPage from './audit-logs.page';
 
+vi.mock('@/common/components/permission-gate', () => ({
+  PermissionGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.logs = [makeLog()];

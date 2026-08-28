@@ -8,6 +8,7 @@ import { Input } from '@/common/components/ui/input';
 import { Label } from '@/common/components/ui/label';
 import { useCreateOrganizationMutation } from '../apis/organization.api';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface AddOrganizationModalProps {
   isOpen: boolean;
@@ -531,6 +532,7 @@ export const AddOrganizationModal = ({ isOpen, onClose, onSuccess }: AddOrganiza
               >
                 Cancel
               </Button>
+              <PermissionGate permission="create-organizations">
               <Button
                 type="submit"
                 disabled={isLoading || !formik.isValid}
@@ -548,6 +550,7 @@ export const AddOrganizationModal = ({ isOpen, onClose, onSuccess }: AddOrganiza
                   </>
                 )}
               </Button>
+              </PermissionGate>
             </div>
           </form>
         </CardContent>

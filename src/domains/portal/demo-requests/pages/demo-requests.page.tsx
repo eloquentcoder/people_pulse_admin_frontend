@@ -49,6 +49,7 @@ import {
 } from '../apis/demo-request.api';
 import type { DemoRequest, DemoRequestFilters } from '../models/demo-request.model';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const DemoRequestsPage = () => {
   const [filters, setFilters] = useState<DemoRequestFilters>({
@@ -440,6 +441,7 @@ const DemoRequestsPage = () => {
                           <Eye className="w-4 h-4" />
                         </Button>
                         {request.status === 'pending' && (
+                          <PermissionGate permission="edit-demo-requests">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -449,8 +451,10 @@ const DemoRequestsPage = () => {
                           >
                             <Phone className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
                         {request.status === 'contacted' && (
+                          <PermissionGate permission="edit-demo-requests">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -460,8 +464,10 @@ const DemoRequestsPage = () => {
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
-                        <Button
+                          <PermissionGate permission="edit-demo-requests">
+                          <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -472,7 +478,8 @@ const DemoRequestsPage = () => {
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
+                          </Button>
+                          </PermissionGate>
                       </div>
                     </td>
                   </tr>
@@ -635,6 +642,7 @@ const DemoRequestsPage = () => {
               {/* Status Actions */}
               <div className="flex gap-2 pt-4 border-t">
                 {selectedRequest.status === 'pending' && (
+                  <PermissionGate permission="edit-demo-requests">
                   <Button
                     onClick={() => {
                       handleStatusChange(selectedRequest.id, 'contacted');
@@ -645,8 +653,10 @@ const DemoRequestsPage = () => {
                     <Phone className="w-4 h-4 mr-2" />
                     Mark as Contacted
                   </Button>
+                  </PermissionGate>
                 )}
                 {selectedRequest.status === 'contacted' && (
+                  <PermissionGate permission="edit-demo-requests">
                   <Button
                     onClick={() => {
                       handleStatusChange(selectedRequest.id, 'completed');
@@ -657,8 +667,10 @@ const DemoRequestsPage = () => {
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Mark as Completed
                   </Button>
+                  </PermissionGate>
                 )}
                 {selectedRequest.status !== 'cancelled' && selectedRequest.status !== 'completed' && (
+                  <PermissionGate permission="edit-demo-requests">
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -669,6 +681,7 @@ const DemoRequestsPage = () => {
                     <XCircle className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
+                  </PermissionGate>
                 )}
               </div>
             </div>
@@ -688,12 +701,14 @@ const DemoRequestsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-demo-requests">
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground"
             >
               Delete Request
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
