@@ -63,7 +63,7 @@ const navItemsConfig: NavItem[] = [
         permission: 'view-subscriptions',
     },
     {
-        title: 'Users',
+        title: 'Organization Users',
         href: '/users',
         icon: Users,
         permission: 'view-all-users',

@@ -168,10 +168,10 @@ const UserManagementPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            User Management
+            Organization Users
           </h1>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
-            Manage platform users, roles, and permissions
+            Manage employees and organization administrators. Platform administrators are managed separately.
           </p>
         </div>
         <div className="flex gap-2">
@@ -222,8 +222,8 @@ const UserManagementPage = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Platform Admins</p>
-                  <p className="text-2xl font-bold text-purple-600">{statsData.data.platform_admins}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Organization Admins</p>
+                  <p className="text-2xl font-bold text-purple-600">{statsData.data.organization_admins}</p>
                 </div>
                 <Shield className="w-8 h-8 text-purple-500" />
               </div>
@@ -287,7 +287,6 @@ const UserManagementPage = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4469e5] focus:border-transparent"
                 >
                   <option value="">All Types</option>
-                  <option value="platform_admin">Platform Admin</option>
                   <option value="organization_admin">Organization Admin</option>
                   <option value="employee">Employee</option>
                 </select>
