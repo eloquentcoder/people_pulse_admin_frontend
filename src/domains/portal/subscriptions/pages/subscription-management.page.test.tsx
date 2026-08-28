@@ -104,6 +104,10 @@ vi.mock("@/domains/portal/organizations/apis/organization.api", () => ({
 
 import SubscriptionManagementPage from "./subscription-management.page";
 
+vi.mock('@/common/components/permission-gate', () => ({
+  PermissionGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.subs = [makeSub({ status: "trial" })];

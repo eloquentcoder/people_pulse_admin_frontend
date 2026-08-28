@@ -646,6 +646,7 @@ const RolesPermissionsPage = () => {
             <Button variant="outline" onClick={() => setRoleModalOpen(false)}>
               Cancel
             </Button>
+            <PermissionGate permission={selectedRole ? 'roles.edit' : 'roles.create'}>
             <Button
               onClick={handleSaveRole}
               disabled={creating || updating}
@@ -655,6 +656,7 @@ const RolesPermissionsPage = () => {
               {(creating || updating) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {selectedRole ? 'Update' : 'Create'}
             </Button>
+            </PermissionGate>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -746,6 +748,7 @@ const RolesPermissionsPage = () => {
                 <Button variant="outline" onClick={() => setPermissionModalOpen(false)}>
                   Cancel
                 </Button>
+                <PermissionGate permission="roles.permissions">
                 <Button
                   onClick={handleSavePermissions}
                   disabled={updatingPermissions || selectedRole?.is_system_role}
@@ -755,6 +758,7 @@ const RolesPermissionsPage = () => {
                   {updatingPermissions && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   Save Permissions
                 </Button>
+                </PermissionGate>
               </div>
             </div>
           </DialogFooter>
@@ -795,6 +799,7 @@ const RolesPermissionsPage = () => {
             <Button variant="outline" onClick={() => setCloneModalOpen(false)}>
               Cancel
             </Button>
+            <PermissionGate permission="roles.create">
             <Button
               onClick={handleConfirmClone}
               disabled={cloning}
@@ -804,6 +809,7 @@ const RolesPermissionsPage = () => {
               {cloning && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Clone Role
             </Button>
+            </PermissionGate>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -825,6 +831,7 @@ const RolesPermissionsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setRoleToDelete(null)}>Cancel</AlertDialogCancel>
+            <PermissionGate permission="roles.delete">
             <AlertDialogAction
               onClick={confirmDeleteRole}
               disabled={deleting}
@@ -833,6 +840,7 @@ const RolesPermissionsPage = () => {
               {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Delete
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -12,7 +12,11 @@ vi.mock('@/domains/portal/roles-permissions/apis/roles.api', () => ({
   useGetRolesQuery: () => ({
     data: {
       data: {
-        data: [{ id: 7, name: 'Support Operator', slug: 'support-operator', is_system_role: false, permissions_count: 3 }],
+        data: [
+          { id: 1, name: 'Platform Administrator', slug: 'platform-admin', is_system_role: true, permissions_count: 157 },
+          { id: 2, name: 'Super Admin', slug: 'super_admin', is_system_role: true, permissions_count: 118 },
+          { id: 7, name: 'Support Operator', slug: 'support-operator', is_system_role: false, permissions_count: 3 },
+        ],
       },
     },
   }),
@@ -54,5 +58,15 @@ describe('PlatformAdminsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save roles' }))
 
     await waitFor(() => expect(updatePlatformAdmin).toHaveBeenCalledWith({ id: 11, data: { role_ids: [7] } }))
+  })
+
+  it('shows assignable platform roles while excluding protected system roles', () => {
+    render(<PlatformAdminsPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /add platform admin/i }))
+
+    expect(screen.getByRole('checkbox', { name: 'Support Operator' })).toBeVisible()
+    expect(screen.queryByRole('checkbox', { name: 'Platform Administrator' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Super Admin' })).not.toBeInTheDocument()
   })
 })

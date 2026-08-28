@@ -46,6 +46,7 @@ import {
   getOptionalFields
 } from '@/common/helpers/documentValidation';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const OrganizationPage = () => {
   const navigate = useNavigate();
@@ -219,6 +220,7 @@ const OrganizationPage = () => {
             <Download className="w-4 h-4" />
             Template
           </Button>
+          <PermissionGate permission="create-organizations">
           <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
             <Upload className="w-4 h-4" />
             Upload
@@ -229,6 +231,8 @@ const OrganizationPage = () => {
               className="hidden"
             />
           </label>
+          </PermissionGate>
+          <PermissionGate permission="create-organizations">
           <Button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -236,6 +240,7 @@ const OrganizationPage = () => {
             <Plus className="w-4 h-4" />
             Add Organization
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -500,6 +505,8 @@ const OrganizationPage = () => {
                     </td>
                     <td className="py-6 px-6">
                       <div className="flex items-center gap-1">
+                        <PermissionGate permission="view-organizations">
+                        <PermissionGate permission="edit-organizations">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -508,6 +515,7 @@ const OrganizationPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -516,24 +524,25 @@ const OrganizationPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                         {org.status === 'active' ? (
-                          <Button
+                          <PermissionGate permission="edit-organizations"><Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeactivate(org.id)}
                             className="hover:bg-red-50 hover:text-red-600"
                           >
                             <XCircle className="w-4 h-4" />
-                          </Button>
+                          </Button></PermissionGate>
                         ) : (
-                          <Button
+                          <PermissionGate permission="edit-organizations"><Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleActivate(org.id)}
                             className="hover:bg-green-50 hover:text-green-600"
                           >
                             <CheckCircle className="w-4 h-4" />
-                          </Button>
+                          </Button></PermissionGate>
                         )}
                         <Button variant="ghost" size="sm" className="hover:bg-gray-50">
                           <MoreVertical className="w-4 h-4" />
@@ -553,15 +562,13 @@ const OrganizationPage = () => {
                             {filters.search ? 'Try adjusting your search criteria' : 'Get started by adding your first organization'}
                           </p>
                         </div>
-                        {!filters.search && (
-                          <Button
+                        {!filters.search && <PermissionGate permission="create-organizations"><Button
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2"
                           >
                             <Plus className="w-4 h-4" />
                             Add Organization
-                          </Button>
-                        )}
+                          </Button></PermissionGate>}
                       </div>
                     </td>
                   </tr>
@@ -683,9 +690,11 @@ const OrganizationPage = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <PermissionGate permission="create-organizations">
                 <Button onClick={handleUpload} className="flex-1">
                   Upload
                 </Button>
+                </PermissionGate>
                 <Button
                   variant="outline"
                   onClick={() => setShowUploadModal(false)}
@@ -700,6 +709,7 @@ const OrganizationPage = () => {
       )}
 
       {/* Add Organization Modal */}
+      <PermissionGate permission="create-organizations">
       <AddOrganizationModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
@@ -708,6 +718,7 @@ const OrganizationPage = () => {
           setShowAddModal(false);
         }}
       />
+      </PermissionGate>
     </div>
   );
 };

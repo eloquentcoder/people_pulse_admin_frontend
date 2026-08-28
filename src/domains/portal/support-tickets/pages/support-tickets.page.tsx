@@ -52,6 +52,7 @@ import { SupportTicketDetailsModal } from '../components/support-ticket-details-
 import { SupportTicketFormModal } from '../components/support-ticket-form-modal';
 import { useAppSelector } from '@/common/hooks/useAppSelector';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const SupportTicketsPage = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -187,6 +188,7 @@ const SupportTicketsPage = () => {
             Refresh
           </Button>
           {!isSuperAdmin && (
+            <PermissionGate permission="create-tickets">
             <Button 
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 bg-[#4469e5] hover:bg-[#4469e5]/90"
@@ -194,6 +196,7 @@ const SupportTicketsPage = () => {
               <Plus className="w-4 h-4" />
               New Ticket
             </Button>
+            </PermissionGate>
           )}
         </div>
       </div>
@@ -473,6 +476,7 @@ const SupportTicketsPage = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
+                        <PermissionGate permission="edit-tickets">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -484,7 +488,9 @@ const SupportTicketsPage = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                         {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
+                          <PermissionGate permission="resolve-tickets">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -494,7 +500,9 @@ const SupportTicketsPage = () => {
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
+                          </PermissionGate>
                         )}
+                        <PermissionGate permission="delete-tickets">
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -506,6 +514,7 @@ const SupportTicketsPage = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>
@@ -522,6 +531,7 @@ const SupportTicketsPage = () => {
                           </p>
                         </div>
                         {!filters.search && !isSuperAdmin && (
+                          <PermissionGate permission="create-tickets">
                           <Button 
                             onClick={() => setShowAddModal(true)}
                             className="flex items-center gap-2"
@@ -529,6 +539,7 @@ const SupportTicketsPage = () => {
                             <Plus className="w-4 h-4" />
                             New Ticket
                           </Button>
+                          </PermissionGate>
                         )}
                       </div>
                     </td>
@@ -661,12 +672,14 @@ const SupportTicketsPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <PermissionGate permission="delete-tickets">
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground"
             >
               Delete Ticket
             </AlertDialogAction>
+            </PermissionGate>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -675,4 +688,3 @@ const SupportTicketsPage = () => {
 };
 
 export default SupportTicketsPage;
-

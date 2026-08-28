@@ -5,6 +5,7 @@ import { Badge } from '@/common/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/common/components/ui/tabs';
 import type { HRTemplate } from '../models/hr-template.model';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 interface HRTemplateDetailsModalProps {
   isOpen: boolean;
@@ -40,22 +41,28 @@ export const HRTemplateDetailsModal = ({
             <DialogTitle>{template.title}</DialogTitle>
             <div className="flex items-center gap-2">
               {onEdit && (
-                <Button variant="ghost" size="sm" onClick={onEdit}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
+                <PermissionGate permission="edit-hr-templates">
+                  <Button variant="ghost" size="sm" onClick={onEdit}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                </PermissionGate>
               )}
               {onDuplicate && (
-                <Button variant="ghost" size="sm" onClick={onDuplicate}>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Duplicate
-                </Button>
+                <PermissionGate permission="edit-hr-templates">
+                  <Button variant="ghost" size="sm" onClick={onDuplicate}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Duplicate
+                  </Button>
+                </PermissionGate>
               )}
               {onDelete && (
-                <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
+                <PermissionGate permission="delete-hr-templates">
+                  <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-600 hover:text-red-700">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </PermissionGate>
               )}
               <Button variant="ghost" size="sm" onClick={onClose}>
                 <X className="w-4 h-4" />
@@ -155,5 +162,3 @@ export const HRTemplateDetailsModal = ({
     </Dialog>
   );
 };
-
-

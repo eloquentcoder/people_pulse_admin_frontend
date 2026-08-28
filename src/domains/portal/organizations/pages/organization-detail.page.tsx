@@ -38,6 +38,7 @@ import { OrganizationDepartmentsTab } from '../components/organization-departmen
 import { OrganizationBranchesTab } from '../components/organization-branches-tab';
 import { OrganizationDesignationsTab } from '../components/organization-designations-tab';
 import { OrganizationSubscriptionTab } from '../components/organization-subscription-tab';
+import { PermissionGate } from '@/common/components/permission-gate';
 
 const OrganizationDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -152,6 +153,7 @@ const OrganizationDetailPage = () => {
         </div>
         <div className="flex gap-2">
           {!hasAdmin && (
+            <PermissionGate permission="create-organizations">
             <Button
               variant="outline"
               onClick={() => setShowOnboardModal(true)}
@@ -160,7 +162,9 @@ const OrganizationDetailPage = () => {
               <UserPlus className="w-4 h-4" />
               Onboard Admin
             </Button>
+            </PermissionGate>
           )}
+          <PermissionGate permission="edit-organizations">
           <Button
             variant="outline"
             onClick={() => setShowEditModal(true)}
@@ -169,6 +173,8 @@ const OrganizationDetailPage = () => {
             <Edit className="w-4 h-4" />
             Edit
           </Button>
+          </PermissionGate>
+          <PermissionGate permission="edit-organizations">
           <Button
             onClick={handleStatusToggle}
             className={`flex items-center gap-2 ${
@@ -189,6 +195,7 @@ const OrganizationDetailPage = () => {
               </>
             )}
           </Button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -515,6 +522,7 @@ const OrganizationDetailPage = () => {
       </Tabs>
 
       {/* Modals */}
+      <PermissionGate permission="edit-organizations">
       <EditOrganizationModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -523,7 +531,9 @@ const OrganizationDetailPage = () => {
         }}
         organization={organization}
       />
+      </PermissionGate>
 
+      <PermissionGate permission="create-organizations">
       <OnboardAdminModal
         isOpen={showOnboardModal}
         onClose={() => setShowOnboardModal(false)}
@@ -532,6 +542,7 @@ const OrganizationDetailPage = () => {
         }}
         organizationId={organization?.id || 0}
       />
+      </PermissionGate>
     </div>
   );
 };
